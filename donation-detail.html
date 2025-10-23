@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Donation Details - FoodFlow</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./styles/main.css" />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">
+          <i class="bi bi-heart-fill text-success me-2"></i>
+          FoodFlow
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="dashboard.html">
+                <i class="bi bi-graph-up me-1"></i>Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="donor-new-donation.html" data-role="donor">
+                <i class="bi bi-plus-circle me-1"></i>New Donation
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="nonprofit-feed.html" data-role="nonprofit">
+                <i class="bi bi-list-ul me-1"></i>Available Nearby
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="driver-routes.html" data-role="driver">
+                <i class="bi bi-truck me-1"></i>Routes
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="admin-orgs.html" data-role="admin">
+                <i class="bi bi-people me-1"></i>Organizations
+              </a>
+            </li>
+          </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <span class="navbar-text me-3">
+                <span class="role-badge">NONPROFIT</span>
+              </span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="login.html">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-4">
+      <div class="row">
+        <div class="col-lg-8">
+          <!-- Back Button -->
+          <div class="mb-3">
+            <a href="nonprofit-feed.html" class="btn btn-outline-secondary">
+              <i class="bi bi-arrow-left me-1"></i>Back to Feed
+            </a>
+          </div>
+
+          <!-- Donation Details Card -->
+          <div class="card shadow" id="donation-detail-card">
+            <div class="card-header bg-primary text-white">
+              <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                  <i class="bi bi-gift me-2"></i>Donation Details
+                </h4>
+                <span class="badge bg-light text-dark" id="donation-id">DON-001</span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <h5 id="item-name">Fresh Organic Vegetables</h5>
+                  <p class="text-muted mb-3">
+                    <span class="badge bg-secondary me-2" id="category">Produce</span>
+                    <span class="badge bg-info" id="quantity">25 lbs</span>
+                  </p>
+                  
+                  <div class="mb-3">
+                    <h6><i class="bi bi-shop me-2"></i>Donor Information</h6>
+                    <p class="mb-1"><strong id="donor-name">Green Grocery Co.</strong></p>
+                    <p class="text-muted mb-0" id="donor-contact">contact@greengrocery.com • (555) 123-4567</p>
+                  </div>
+
+                  <div class="mb-3">
+                    <h6><i class="bi bi-geo-alt me-2"></i>Pickup Location</h6>
+                    <p class="mb-1" id="pickup-address">123 Main St, Downtown</p>
+                    <button class="btn btn-outline-primary btn-sm" onclick="showMap()">
+                      <i class="bi bi-map me-1"></i>View Map
+                    </button>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <h6><i class="bi bi-clock me-2"></i>Timing</h6>
+                    <p class="mb-1"><strong>Safe Until:</strong> <span id="safe-until">Today, 6:00 PM</span></p>
+                    <p class="mb-1"><strong>Pickup Window:</strong> <span id="pickup-window">2:00 PM - 4:00 PM</span></p>
+                    <p class="mb-0"><strong>Time Remaining:</strong> <span class="text-warning" id="time-remaining">3h 10m</span></p>
+                  </div>
+
+                  <div class="mb-3">
+                    <h6><i class="bi bi-info-circle me-2"></i>Additional Notes</h6>
+                    <p class="text-muted" id="notes">Mixed seasonal vegetables, all fresh and ready for pickup.</p>
+                  </div>
+
+                  <div class="mb-3">
+                    <h6><i class="bi bi-graph-up me-2"></i>Status</h6>
+                    <span class="badge status-badge status-open" id="status-badge">Open</span>
+                    <p class="text-muted mt-1" id="status-details">Available for claim</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="mt-4 pt-3 border-top">
+                <div class="d-flex gap-2" id="action-buttons">
+                  <button class="btn btn-primary claim-btn" data-donation-id="DON-001">
+                    <i class="bi bi-check-circle me-1"></i>Claim Donation
+                  </button>
+                  <button class="btn btn-outline-secondary" onclick="shareDonation()">
+                    <i class="bi bi-share me-1"></i>Share
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Progress Timeline -->
+          <div class="card mt-4">
+            <div class="card-header">
+              <h6 class="mb-0"><i class="bi bi-list-ol me-2"></i>Donation Timeline</h6>
+            </div>
+            <div class="card-body">
+              <div class="progress-timeline" data-donation-id="DON-001">
+                <div class="timeline-item completed">
+                  <h6>Donation Posted</h6>
+                  <p class="text-muted mb-0">Donor posted the donation</p>
+                  <small class="text-muted">Today, 10:30 AM</small>
+                </div>
+                <div class="timeline-item active">
+                  <h6>Available for Claim</h6>
+                  <p class="text-muted mb-0">Waiting for nonprofit to claim</p>
+                  <small class="text-muted">Currently</small>
+                </div>
+                <div class="timeline-item">
+                  <h6>Claimed</h6>
+                  <p class="text-muted mb-0">Nonprofit claims the donation</p>
+                </div>
+                <div class="timeline-item">
+                  <h6>Picked Up</h6>
+                  <p class="text-muted mb-0">Donation is picked up</p>
+                </div>
+                <div class="timeline-item">
+                  <h6>Delivered</h6>
+                  <p class="text-muted mb-0">Donation reaches beneficiaries</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <!-- Map Card -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Pickup Location</h6>
+            </div>
+            <div class="card-body p-0">
+              <div class="map-placeholder" style="height: 200px;">
+                <i class="bi bi-geo-alt-fill me-2"></i>
+                Interactive map showing pickup location
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Donor -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h6 class="mb-0"><i class="bi bi-telephone me-2"></i>Contact Donor</h6>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <a href="tel:+15551234567" class="btn btn-outline-primary">
+                  <i class="bi bi-telephone me-1"></i>Call Donor
+                </a>
+                <a href="mailto:contact@greengrocery.com" class="btn btn-outline-primary">
+                  <i class="bi bi-envelope me-1"></i>Email Donor
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Similar Donations -->
+          <div class="card">
+            <div class="card-header">
+              <h6 class="mb-0"><i class="bi bi-collection me-2"></i>Similar Donations</h6>
+            </div>
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-2">
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">Fresh Salad Mix</h6>
+                  <small class="text-muted">Produce • 12 lbs • 1.2 mi</small>
+                </div>
+                <span class="badge bg-success">Available</span>
+              </div>
+              <div class="d-flex align-items-center">
+                <div class="flex-grow-1">
+                  <h6 class="mb-1">Artisan Bread</h6>
+                  <small class="text-muted">Bakery • 15 items • 1.8 mi</small>
+                </div>
+                <span class="badge bg-warning">Claimed</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS bundle -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Custom JS -->
+    <script src="./scripts/main.js"></script>
+    <script>
+      // Load donation details based on URL parameter
+      document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const donationId = urlParams.get('id') || 'DON-001';
+        loadDonationDetails(donationId);
+        updateTimeRemaining();
+        setInterval(updateTimeRemaining, 60000); // Update every minute
+      });
+
+      function loadDonationDetails(donationId) {
+        const donation = window.appState.donations.find(d => d.id === donationId);
+        if (!donation) {
+          showToast('Donation not found', 'error');
+          return;
+        }
+
+        // Update all elements with donation data
+        document.getElementById('donation-id').textContent = donation.id;
+        document.getElementById('item-name').textContent = donation.itemName;
+        document.getElementById('category').textContent = donation.category;
+        document.getElementById('quantity').textContent = donation.quantity;
+        document.getElementById('donor-name').textContent = donation.donorName;
+        document.getElementById('pickup-address').textContent = donation.address;
+        document.getElementById('notes').textContent = donation.notes || 'No additional notes provided.';
+        
+        // Format dates
+        const safeUntil = new Date(donation.safeUntil);
+        const pickupStart = new Date(donation.pickupWindow.split(' - ')[0]);
+        const pickupEnd = new Date(donation.pickupWindow.split(' - ')[1]);
+        
+        document.getElementById('safe-until').textContent = safeUntil.toLocaleString();
+        document.getElementById('pickup-window').textContent = 
+          `${pickupStart.toLocaleTimeString()} - ${pickupEnd.toLocaleTimeString()}`;
+
+        // Update status
+        const statusBadge = document.getElementById('status-badge');
+        const statusDetails = document.getElementById('status-details');
+        const actionButtons = document.getElementById('action-buttons');
+        
+        statusBadge.className = `badge status-badge status-${donation.status}`;
+        statusBadge.textContent = getStatusText(donation.status);
+        
+        if (donation.status === 'open') {
+          statusDetails.textContent = 'Available for claim';
+          actionButtons.innerHTML = `
+            <button class="btn btn-primary claim-btn" data-donation-id="${donation.id}">
+              <i class="bi bi-check-circle me-1"></i>Claim Donation
+            </button>
+            <button class="btn btn-outline-secondary" onclick="shareDonation()">
+              <i class="bi bi-share me-1"></i>Share
+            </button>
+          `;
+        } else if (donation.status === 'claimed') {
+          statusDetails.textContent = `Claimed by Community Food Bank (ETA: ${donation.eta})`;
+          actionButtons.innerHTML = `
+            <button class="btn btn-outline-primary" onclick="contactDonor()">
+              <i class="bi bi-telephone me-1"></i>Contact Donor
+            </button>
+            <button class="btn btn-outline-secondary" onclick="shareDonation()">
+              <i class="bi bi-share me-1"></i>Share
+            </button>
+          `;
+        } else {
+          statusDetails.textContent = `Status: ${getStatusText(donation.status)}`;
+          actionButtons.innerHTML = `
+            <button class="btn btn-outline-secondary" onclick="shareDonation()">
+              <i class="bi bi-share me-1"></i>Share
+            </button>
+          `;
+        }
+
+        // Update timeline
+        updateProgressTimeline(donation.id, donation.status);
+      }
+
+      function updateTimeRemaining() {
+        const donation = window.appState.donations.find(d => d.id === 'DON-001');
+        if (donation) {
+          const timeRemaining = getTimeRemaining(donation.safeUntil);
+          document.getElementById('time-remaining').textContent = timeRemaining;
+          
+          // Add urgency styling
+          if (timeRemaining.includes('m') && !timeRemaining.includes('h')) {
+            document.getElementById('time-remaining').className = 'text-danger';
+          } else {
+            document.getElementById('time-remaining').className = 'text-warning';
+          }
+        }
+      }
+
+      function getTimeRemaining(safeUntil) {
+        const now = new Date();
+        const safeUntilDate = new Date(safeUntil);
+        const diffMs = safeUntilDate - now;
+        
+        if (diffMs <= 0) return 'Expired';
+        
+        const hours = Math.floor(diffMs / (1000 * 60 * 60));
+        const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+        
+        if (hours > 0) {
+          return `${hours}h ${minutes}m`;
+        } else {
+          return `${minutes}m`;
+        }
+      }
+
+      function getStatusText(status) {
+        const statusMap = {
+          'open': 'Open',
+          'claimed': 'Claimed',
+          'picked-up': 'Picked Up',
+          'delivered': 'Delivered',
+          'expired': 'Expired'
+        };
+        return statusMap[status] || status;
+      }
+
+      function showMap() {
+        showToast('Map view would open here', 'info');
+      }
+
+      function shareDonation() {
+        if (navigator.share) {
+          navigator.share({
+            title: 'Food Donation Available',
+            text: 'Check out this food donation on FoodFlow!',
+            url: window.location.href
+          });
+        } else {
+          // Fallback: copy to clipboard
+          navigator.clipboard.writeText(window.location.href);
+          showToast('Link copied to clipboard!', 'success');
+        }
+      }
+
+      function contactDonor() {
+        showToast('Opening contact options...', 'info');
+      }
+    </script>
+  </body>
+</html>

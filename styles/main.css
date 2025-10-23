@@ -1,0 +1,235 @@
+/* Custom styles for Food Surplus Donation Platform */
+
+:root {
+  --primary-color: #28a745;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --info-color: #17a2b8;
+  --light-bg: #f8f9fa;
+  --dark-text: #343a40;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--light-bg);
+}
+
+.navbar-brand {
+  font-weight: 600;
+  color: var(--primary-color) !important;
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+}
+
+.status-open {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-claimed {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-picked-up {
+  background-color: #cce5ff;
+  color: #004085;
+}
+
+.status-delivered {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-expired {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.donation-card {
+  transition: all 0.3s ease;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+}
+
+.donation-card:hover {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.kpi-card {
+  background: linear-gradient(135deg, var(--primary-color), #20c997);
+  color: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.kpi-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.kpi-label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.progress-timeline {
+  position: relative;
+  padding: 1rem 0;
+}
+
+.progress-timeline::before {
+  content: '';
+  position: absolute;
+  left: 1.5rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: #dee2e6;
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 3rem;
+  margin-bottom: 1rem;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  top: 0.5rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: #dee2e6;
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px #dee2e6;
+}
+
+.timeline-item.completed::before {
+  background-color: var(--success-color);
+  box-shadow: 0 0 0 2px var(--success-color);
+}
+
+.timeline-item.active::before {
+  background-color: var(--warning-color);
+  box-shadow: 0 0 0 2px var(--warning-color);
+}
+
+.map-placeholder {
+  background-color: #e9ecef;
+  border: 2px dashed #adb5bd;
+  border-radius: 0.5rem;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.route-stop {
+  border-left: 3px solid var(--primary-color);
+  padding-left: 1rem;
+  margin-bottom: 1rem;
+}
+
+.route-stop.completed {
+  border-left-color: var(--success-color);
+  opacity: 0.7;
+}
+
+.route-stop.current {
+  border-left-color: var(--warning-color);
+  background-color: #fff3cd;
+  border-radius: 0.25rem;
+  padding: 0.75rem;
+}
+
+.chart-container {
+  position: relative;
+  height: 300px;
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+}
+
+.simple-chart {
+  display: flex;
+  align-items: end;
+  height: 200px;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.chart-bar {
+  background: linear-gradient(to top, var(--primary-color), #20c997);
+  border-radius: 0.25rem 0.25rem 0 0;
+  min-width: 2rem;
+  color: white;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  padding: 0.5rem 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.donut-chart {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--primary-color) 0deg 120deg,
+    var(--info-color) 120deg 240deg,
+    var(--warning-color) 240deg 360deg
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.donut-chart::before {
+  content: '';
+  width: 100px;
+  height: 100px;
+  background-color: white;
+  border-radius: 50%;
+}
+
+.toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1055;
+}
+
+.role-badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  background-color: var(--info-color);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .kpi-value {
+    font-size: 2rem;
+  }
+  
+  .donation-card {
+    margin-bottom: 1rem;
+  }
+}

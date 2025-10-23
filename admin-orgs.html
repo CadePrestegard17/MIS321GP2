@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Organization Management - FoodFlow</title>
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./styles/main.css" />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">
+          <i class="bi bi-heart-fill text-success me-2"></i>
+          FoodFlow
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="dashboard.html">
+                <i class="bi bi-graph-up me-1"></i>Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="donor-new-donation.html" data-role="donor">
+                <i class="bi bi-plus-circle me-1"></i>New Donation
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="nonprofit-feed.html" data-role="nonprofit">
+                <i class="bi bi-list-ul me-1"></i>Available Nearby
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="driver-routes.html" data-role="driver">
+                <i class="bi bi-truck me-1"></i>Routes
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="admin-orgs.html" data-role="admin">
+                <i class="bi bi-people me-1"></i>Organizations
+              </a>
+            </li>
+          </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <span class="navbar-text me-3">
+                <span class="role-badge">ADMIN</span>
+              </span>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="login.html">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Login
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container py-4">
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">
+              <i class="bi bi-people me-2"></i>Organization Management
+            </h1>
+            <div>
+              <button class="btn btn-outline-primary me-2">
+                <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+              </button>
+              <button class="btn btn-outline-secondary">
+                <i class="bi bi-funnel me-1"></i>Filter
+                <i class="bi bi-chevron-down ms-1"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th>Organization</th>
+                      <th>Type</th>
+                      <th>Status</th>
+                      <th>Contact</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr data-org-id="DONOR-001">
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <i class="bi bi-shop me-2 text-primary"></i>
+                          <div>
+                            <div class="fw-bold">Green Grocery Co.</div>
+                            <small class="text-muted">ID: DONOR-001</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge bg-primary">Donor</span>
+                      </td>
+                      <td>
+                        <span class="badge status-badge status-verified">Verified</span>
+                      </td>
+                      <td>
+                        <div>
+                          <div>contact@greengrocery.com</div>
+                          <small class="text-muted">(555) 123-4567</small>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-warning btn-sm verify-btn" data-org-id="DONOR-001">Unverify</button>
+                          <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-eye"></i>
+                          </button>
+                          <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr data-org-id="DONOR-002">
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <i class="bi bi-shop me-2 text-primary"></i>
+                          <div>
+                            <div class="fw-bold">Bakery Bliss</div>
+                            <small class="text-muted">ID: DONOR-002</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge bg-primary">Donor</span>
+                      </td>
+                      <td>
+                        <span class="badge status-badge status-verified">Verified</span>
+                      </td>
+                      <td>
+                        <div>
+                          <div>info@bakerybliss.com</div>
+                          <small class="text-muted">(555) 234-5678</small>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-warning btn-sm verify-btn" data-org-id="DONOR-002">Unverify</button>
+                          <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-eye"></i>
+                          </button>
+                          <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr data-org-id="NPO-001">
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <i class="bi bi-building me-2 text-success"></i>
+                          <div>
+                            <div class="fw-bold">Community Food Bank</div>
+                            <small class="text-muted">ID: NPO-001</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge bg-success">Nonprofit</span>
+                      </td>
+                      <td>
+                        <span class="badge status-badge status-verified">Verified</span>
+                      </td>
+                      <td>
+                        <div>
+                          <div>volunteer@communityfoodbank.org</div>
+                          <small class="text-muted">(555) 345-6789</small>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-warning btn-sm verify-btn" data-org-id="NPO-001">Unverify</button>
+                          <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-eye"></i>
+                          </button>
+                          <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr data-org-id="NPO-002">
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <i class="bi bi-building me-2 text-success"></i>
+                          <div>
+                            <div class="fw-bold">Hope Kitchen</div>
+                            <small class="text-muted">ID: NPO-002</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge bg-success">Nonprofit</span>
+                      </td>
+                      <td>
+                        <span class="badge status-badge status-verified">Verified</span>
+                      </td>
+                      <td>
+                        <div>
+                          <div>info@hopekitchen.org</div>
+                          <small class="text-muted">(555) 456-7890</small>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-warning btn-sm verify-btn" data-org-id="NPO-002">Unverify</button>
+                          <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-eye"></i>
+                          </button>
+                          <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr data-org-id="NPO-003">
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <i class="bi bi-building me-2 text-success"></i>
+                          <div>
+                            <div class="fw-bold">New Hope Shelter</div>
+                            <small class="text-muted">ID: NPO-003</small>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge bg-success">Nonprofit</span>
+                      </td>
+                      <td>
+                        <span class="badge status-badge status-pending">Pending</span>
+                      </td>
+                      <td>
+                        <div>
+                          <div>contact@newhopeshelter.org</div>
+                          <small class="text-muted">(555) 567-8901</small>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-success btn-sm verify-btn" data-org-id="NPO-003">Verify</button>
+                          <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-eye"></i>
+                          </button>
+                          <button class="btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-pencil"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-4">
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6 class="mb-0">
+                <i class="bi bi-graph-up me-2"></i>Platform Stats
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row text-center">
+                <div class="col-6 mb-2">
+                  <div class="fw-bold text-primary">47</div>
+                  <small class="text-muted">Total Orgs</small>
+                </div>
+                <div class="col-6 mb-2">
+                  <div class="fw-bold text-warning">3</div>
+                  <small class="text-muted">Pending</small>
+                </div>
+                <div class="col-6">
+                  <div class="fw-bold text-primary">28</div>
+                  <small class="text-muted">Donors</small>
+                </div>
+                <div class="col-6">
+                  <div class="fw-bold text-success">19</div>
+                  <small class="text-muted">Nonprofits</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card mb-3">
+            <div class="card-header">
+              <h6 class="mb-0">
+                <i class="bi bi-clock me-2"></i>Recent Activity
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <div>
+                  <div class="small">New Hope Shelter verified</div>
+                  <small class="text-muted">2h ago</small>
+                </div>
+              </div>
+              <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-person-plus-fill text-primary me-2"></i>
+                <div>
+                  <div class="small">Fresh Market registered</div>
+                  <small class="text-muted">4h ago</small>
+                </div>
+              </div>
+              <div class="d-flex align-items-center">
+                <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                <div>
+                  <div class="small">Downtown Café pending</div>
+                  <small class="text-muted">1d ago</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">
+              <h6 class="mb-0">
+                <i class="bi bi-lightning me-2"></i>Quick Actions
+              </h6>
+            </div>
+            <div class="card-body">
+              <button class="btn btn-outline-primary btn-sm w-100 mb-2">
+                <i class="bi bi-download me-1"></i>Export List
+              </button>
+              <button class="btn btn-outline-secondary btn-sm w-100">
+                <i class="bi bi-envelope me-1"></i>Send Bulk Email
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS bundle -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Custom JS -->
+    <script src="./scripts/main.js"></script>
+  </body>
+</html>
