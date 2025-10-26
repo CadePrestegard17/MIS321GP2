@@ -14,6 +14,34 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
+  console.log('initializeApp called');
+  
+  // Clear any old demo data
+  const savedUser = localStorage.getItem('currentUser');
+  if (savedUser) {
+    try {
+      const user = JSON.parse(savedUser);
+      // Check if this is old demo data
+      if (user.id === 'USER-001' || user.role === null || !user.role) {
+        console.log('Clearing old demo user data');
+        localStorage.removeItem('currentUser');
+        window.appState.currentUser = null;
+      } else {
+        window.appState.currentUser = user;
+        console.log('Parsed user:', window.appState.currentUser);
+        updateNavigationForRole(window.appState.currentUser.role);
+      }
+    } catch (error) {
+      console.error('Error parsing saved user:', error);
+      localStorage.removeItem('currentUser');
+    }
+  }
+  
+  console.log('Current user state:', window.appState.currentUser);
+  
+  // Check page access permissions
+  checkPageAccess();
+  
   // Load seed data
   loadSeedData();
   
@@ -171,17 +199,42 @@ function updateNavigationForRole(role) {
   const navLinks = document.querySelectorAll('.nav-link[data-role]');
   navLinks.forEach(link => {
     const requiredRoles = link.dataset.role.split(',');
-    if (requiredRoles.includes(role) || requiredRoles.includes('all')) {
+    const isAllowed = role && requiredRoles.includes(role.toString());
+    const isAdmin = role === 4; // Admin can see all links
+    
+    if (isAllowed || isAdmin) {
       link.style.display = 'block';
     } else {
       link.style.display = 'none';
     }
   });
-
+  
   // Update role badge
   const roleBadge = document.querySelector('.role-badge');
   if (roleBadge) {
-    roleBadge.textContent = role.toUpperCase();
+    if (role) {
+      const roleNames = { 1: 'DONOR', 2: 'NONPROFIT', 3: 'DRIVER', 4: 'ADMIN' };
+      roleBadge.textContent = roleNames[role] || 'USER';
+    } else {
+      roleBadge.textContent = 'GUEST';
+    }
+  }
+  
+  // Update login/logout link
+  const loginLink = document.querySelector('.nav-link[href="login.html"]');
+  if (loginLink) {
+    if (role) {
+      loginLink.innerHTML = '<i class="bi bi-box-arrow-right me-1"></i>Logout';
+      loginLink.href = '#';
+      loginLink.onclick = function(e) {
+        e.preventDefault();
+        logout();
+      };
+    } else {
+      loginLink.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Login';
+      loginLink.href = 'login.html';
+      loginLink.onclick = null;
+    }
   }
 }
 
@@ -191,6 +244,50 @@ function setupEventListeners() {
   
   // Button clicks
   document.addEventListener('click', handleButtonClick);
+  
+  // Handle login/register form toggles
+  const showRegisterLink = document.getElementById('show-register');
+  const showLoginLink = document.getElementById('show-login');
+  const loginCard = document.getElementById('login-card');
+  const registerCard = document.getElementById('register-card');
+  
+  if (showRegisterLink) {
+    showRegisterLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      loginCard.style.display = 'none';
+      registerCard.style.display = 'block';
+    });
+  }
+  
+  if (showLoginLink) {
+    showLoginLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      registerCard.style.display = 'none';
+      loginCard.style.display = 'block';
+    });
+  }
+  
+  // Handle role selection for registration
+  const roleSelect = document.getElementById('reg-role');
+  if (roleSelect) {
+    roleSelect.addEventListener('change', function() {
+      const selectedRole = this.value;
+      const donorFields = document.getElementById('donor-fields');
+      const nonprofitFields = document.getElementById('nonprofit-fields');
+      
+      // Hide all role-specific fields
+      document.querySelectorAll('.role-specific-fields').forEach(field => {
+        field.style.display = 'none';
+      });
+      
+      // Show relevant fields based on role
+      if (selectedRole === '1' && donorFields) {
+        donorFields.style.display = 'block';
+      } else if (selectedRole === '2' && nonprofitFields) {
+        nonprofitFields.style.display = 'block';
+      }
+    });
+  }
   
   // Real-time updates simulation
   if (window.location.pathname.includes('nonprofit-feed')) {
@@ -207,6 +304,9 @@ function handleFormSubmission(event) {
   } else if (form.id === 'login-form') {
     event.preventDefault();
     handleLogin(form);
+  } else if (form.id === 'register-form') {
+    event.preventDefault();
+    handleRegistration(form);
   }
 }
 
@@ -551,6 +651,182 @@ function createDonationCard(donation) {
   return card;
 }
 
+// Authentication functions
+async function handleLogin(form) {
+  const formData = new FormData(form);
+  const loginData = {
+    email: formData.get('email'),
+    password: formData.get('password')
+  };
+  
+  console.log('Sending login request:', loginData);
+  
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(loginData)
+    });
+    
+    console.log('Response status:', response.status);
+    console.log('Response headers:', response.headers);
+    
+    const result = await response.json();
+    console.log('Response data:', result);
+    
+    if (result.success) {
+      console.log('Login successful, user data:', result.user);
+      console.log('User role:', result.user.role);
+      
+      // Store user data
+      window.appState.currentUser = result.user;
+      localStorage.setItem('currentUser', JSON.stringify(result.user));
+      
+      // Update navigation
+      updateNavigationForRole(result.user.role);
+      
+      // Show success message first
+      showToast('Login successful!', 'success');
+      
+      // Redirect after a short delay to ensure toast is shown
+      setTimeout(() => {
+        console.log('Redirecting to role:', result.user.role);
+        redirectAfterLogin(result.user.role);
+      }, 1000);
+    } else {
+      showToast(result.message || 'Login failed', 'danger');
+    }
+  } catch (error) {
+    console.error('Login error:', error);
+    showToast('An error occurred during login', 'danger');
+  }
+}
+
+async function handleRegistration(form) {
+  const formData = new FormData(form);
+  const registerData = {
+    email: formData.get('email'),
+    password: formData.get('password'),
+    firstName: formData.get('firstName'),
+    lastName: formData.get('lastName'),
+    role: parseInt(formData.get('role')),
+    businessName: formData.get('businessName'),
+    businessType: formData.get('businessType'),
+    organizationName: formData.get('organizationName'),
+    organizationType: formData.get('organizationType')
+  };
+  
+  try {
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(registerData)
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      // Store user data and redirect immediately
+      window.appState.currentUser = result.user;
+      localStorage.setItem('currentUser', JSON.stringify(result.user));
+      
+      // Update navigation
+      updateNavigationForRole(result.user.role);
+      
+      // Show success message first
+      showToast('Registration successful!', 'success');
+      
+      // Redirect after a short delay to ensure toast is shown
+      setTimeout(() => {
+        redirectAfterLogin(result.user.role);
+      }, 1000);
+    } else {
+      showToast(result.message || 'Registration failed', 'danger');
+    }
+  } catch (error) {
+    console.error('Registration error:', error);
+    showToast('An error occurred during registration', 'danger');
+  }
+}
+
+function redirectAfterLogin(role) {
+  console.log('redirectAfterLogin called with role:', role);
+  const roleMap = {
+    1: 'donor-new-donation.html', // Donor
+    2: 'nonprofit-feed.html',    // Nonprofit
+    3: 'driver-routes.html',      // Driver
+    4: 'dashboard.html'           // Admin
+  };
+  
+  const redirectUrl = roleMap[role] || 'index.html';
+  console.log('Redirecting to:', redirectUrl);
+  window.location.href = redirectUrl;
+}
+
+function clearStorage() {
+  localStorage.removeItem('currentUser');
+  window.appState.currentUser = null;
+  updateNavigationForRole(null);
+  console.log('Storage cleared');
+  alert('Storage cleared! Please refresh the page.');
+}
+
+function logout() {
+  window.appState.currentUser = null;
+  localStorage.removeItem('currentUser');
+  updateNavigationForRole(null);
+  window.location.href = 'index.html';
+}
+
+function checkPageAccess() {
+  const currentPage = window.location.pathname.split('/').pop();
+  const user = window.appState.currentUser;
+  
+  console.log('checkPageAccess - currentPage:', currentPage);
+  console.log('checkPageAccess - user:', user);
+  
+  // Define page access rules
+  const pageAccess = {
+    'donor-new-donation.html': [1], // Donor only
+    'nonprofit-feed.html': [2],     // Nonprofit only  
+    'driver-routes.html': [3],       // Driver only
+    'admin-orgs.html': [4],          // Admin only
+    'dashboard.html': [4]            // Admin only
+  };
+  
+  // If user is on a restricted page
+  if (pageAccess[currentPage]) {
+    const allowedRoles = pageAccess[currentPage];
+    console.log('checkPageAccess - allowedRoles:', allowedRoles);
+    
+    // If not logged in, redirect to login
+    if (!user) {
+      console.log('checkPageAccess - no user, redirecting to login');
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    // If user role not allowed, redirect to their role page
+    if (!allowedRoles.includes(user.role)) {
+      console.log('checkPageAccess - user role not allowed, redirecting to role page');
+      const rolePages = {
+        1: 'donor-new-donation.html', // Donor
+        2: 'nonprofit-feed.html',     // Nonprofit
+        3: 'driver-routes.html',      // Driver
+        4: 'dashboard.html'           // Admin
+      };
+      
+      const redirectPage = rolePages[user.role] || 'index.html';
+      window.location.href = redirectPage;
+      return;
+    }
+  }
+}
+
 function getTimeRemaining(safeUntil) {
   const now = new Date();
   const safeUntilDate = new Date(safeUntil);
@@ -596,29 +872,6 @@ function showToast(message, type = 'info') {
   });
 }
 
-function handleLogin(form) {
-  const formData = new FormData(form);
-  const role = formData.get('role');
-  const user = {
-    id: 'USER-001',
-    name: 'Demo User',
-    role: role,
-    email: 'demo@example.com'
-  };
-  
-  setCurrentUser(user);
-  updateNavigationForRole(role);
-  
-  // Redirect based on role
-  const redirectMap = {
-    'donor': 'donor-new-donation.html',
-    'nonprofit': 'nonprofit-feed.html',
-    'driver': 'driver-routes.html',
-    'admin': 'admin-orgs.html'
-  };
-  
-  window.location.href = redirectMap[role] || 'index.html';
-}
 
 // Export functions for global access
 window.confirmETA = confirmETA;

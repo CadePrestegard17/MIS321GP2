@@ -36,27 +36,27 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
             <li class="nav-item">
-              <a class="nav-link" href="dashboard.html">
+              <a class="nav-link" href="dashboard.html" data-role="4">
                 <i class="bi bi-graph-up me-1"></i>Dashboard
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="donor-new-donation.html" data-role="donor">
+              <a class="nav-link" href="donor-new-donation.html" data-role="1">
                 <i class="bi bi-plus-circle me-1"></i>New Donation
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="nonprofit-feed.html" data-role="nonprofit">
+              <a class="nav-link" href="nonprofit-feed.html" data-role="2">
                 <i class="bi bi-list-ul me-1"></i>Available Nearby
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="driver-routes.html" data-role="driver">
+              <a class="nav-link" href="driver-routes.html" data-role="3">
                 <i class="bi bi-truck me-1"></i>Routes
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="admin-orgs.html" data-role="admin">
+              <a class="nav-link" href="admin-orgs.html" data-role="4">
                 <i class="bi bi-people me-1"></i>Organizations
               </a>
             </li>
@@ -80,84 +80,132 @@
     <!-- Main Content -->
     <div class="container py-5">
       <div class="row justify-content-center">
-        <div class="col-md-6">
-          <div class="card shadow">
+        <div class="col-md-8">
+          <!-- Login Form -->
+          <div class="card shadow mb-4" id="login-card">
             <div class="card-header bg-primary text-white text-center">
               <h4 class="mb-0">
-                <i class="bi bi-box-arrow-in-right me-2"></i>Select Your Role
+                <i class="bi bi-box-arrow-in-right me-2"></i>Login
               </h4>
             </div>
             <div class="card-body p-4">
               <form id="login-form">
-                <div class="mb-4">
-                  <label class="form-label fw-bold">Choose your role to continue:</label>
-                  <div class="row g-3">
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="mb-3">
+                  <label for="password" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                  </button>
+                </div>
+              </form>
+              <div class="text-center mt-3">
+                <p class="mb-0">Don't have an account? <a href="#" id="show-register">Register here</a></p>
+                <button type="button" class="btn btn-sm btn-outline-warning mt-2" onclick="clearStorage()">
+                  <i class="bi bi-trash me-1"></i>Clear Storage
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Registration Form -->
+          <div class="card shadow" id="register-card" style="display: none;">
+            <div class="card-header bg-success text-white text-center">
+              <h4 class="mb-0">
+                <i class="bi bi-person-plus me-2"></i>Register
+              </h4>
+            </div>
+            <div class="card-body p-4">
+              <form id="register-form">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="reg-firstname" class="form-label">First Name</label>
+                      <input type="text" class="form-control" id="reg-firstname" name="firstName" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="reg-lastname" class="form-label">Last Name</label>
+                      <input type="text" class="form-control" id="reg-lastname" name="lastName" required>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label for="reg-email" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="reg-email" name="email" required>
+                </div>
+                <div class="mb-3">
+                  <label for="reg-password" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="reg-password" name="password" required minlength="6">
+                </div>
+                <div class="mb-3">
+                  <label for="reg-role" class="form-label">Role</label>
+                  <select class="form-select" id="reg-role" name="role" required>
+                    <option value="">Select your role</option>
+                    <option value="1">Donor</option>
+                    <option value="2">Nonprofit</option>
+                    <option value="3">Driver</option>
+                  </select>
+                </div>
+                
+                <!-- Role-specific fields -->
+                <div id="donor-fields" class="role-specific-fields" style="display: none;">
+                  <div class="row">
                     <div class="col-md-6">
-                      <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center">
-                          <i class="bi bi-shop text-primary display-6 mb-3"></i>
-                          <h6>Donor</h6>
-                          <p class="small text-muted">Post surplus food donations</p>
-                          <div class="form-check">
-                            <input class="form-check-input" type="radio" name="role" id="role-donor" value="donor">
-                            <label class="form-check-label" for="role-donor">Select Donor</label>
-                          </div>
-                        </div>
+                      <div class="mb-3">
+                        <label for="business-name" class="form-label">Business Name</label>
+                        <input type="text" class="form-control" id="business-name" name="businessName">
                       </div>
                     </div>
                     <div class="col-md-6">
-                      <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center">
-                          <i class="bi bi-building text-success display-6 mb-3"></i>
-                          <h6>Nonprofit</h6>
-                          <p class="small text-muted">Claim available donations</p>
-                          <div class="form-check">
-                            <input class="form-check-input" type="radio" name="role" id="role-nonprofit" value="nonprofit">
-                            <label class="form-check-label" for="role-nonprofit">Select Nonprofit</label>
-                          </div>
-                        </div>
+                      <div class="mb-3">
+                        <label for="business-type" class="form-label">Business Type</label>
+                        <input type="text" class="form-control" id="business-type" name="businessType">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div id="nonprofit-fields" class="role-specific-fields" style="display: none;">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="org-name" class="form-label">Organization Name</label>
+                        <input type="text" class="form-control" id="org-name" name="organizationName">
                       </div>
                     </div>
                     <div class="col-md-6">
-                      <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center">
-                          <i class="bi bi-truck text-warning display-6 mb-3"></i>
-                          <h6>Driver</h6>
-                          <p class="small text-muted">Transport donations</p>
-                          <div class="form-check">
-                            <input class="form-check-input" type="radio" name="role" id="role-driver" value="driver">
-                            <label class="form-check-label" for="role-driver">Select Driver</label>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-6">
-                      <div class="card h-100 border-0 shadow-sm">
-                        <div class="card-body text-center">
-                          <i class="bi bi-graph-up text-info display-6 mb-3"></i>
-                          <h6>Admin</h6>
-                          <p class="small text-muted">Manage platform</p>
-                          <div class="form-check">
-                            <input class="form-check-input" type="radio" name="role" id="role-admin" value="admin">
-                            <label class="form-check-label" for="role-admin">Select Admin</label>
-                          </div>
-                        </div>
+                      <div class="mb-3">
+                        <label for="org-type" class="form-label">Organization Type</label>
+                        <input type="text" class="form-control" id="org-type" name="organizationType">
                       </div>
                     </div>
                   </div>
                 </div>
                 
                 <div class="d-grid">
-                  <button type="submit" class="btn btn-primary btn-lg">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Continue
+                  <button type="submit" class="btn btn-success btn-lg">
+                    <i class="bi bi-person-plus me-2"></i>Register
                   </button>
                 </div>
               </form>
+              <div class="text-center mt-3">
+                <p class="mb-0">Already have an account? <a href="#" id="show-login">Login here</a></p>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3"></div>
 
     <!-- Bootstrap JS bundle -->
     <script
