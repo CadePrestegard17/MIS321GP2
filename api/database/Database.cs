@@ -22,7 +22,7 @@ namespace FoodFlow.Database
             this.username = "yi0mxxnb7yvqlr7z";
             this.port = "3306";
             this.password = "ghqbrniyhwe2lfwd";
-            this.cs = "mysql://yi0mxxnb7yvqlr7z:ghqbrniyhwe2lfwd@rtzsaka6vivj2zp1.cbetxkdyhwsb.us-east-1.rds.amazonaws.com:3306/jpg1ldoebfgn7c2o";
+            this.cs = "Server=rtzsaka6vivj2zp1.cbetxkdyhwsb.us-east-1.rds.amazonaws.com;Port=3306;Database=jpg1ldoebfgn7c2o;Uid=yi0mxxnb7yvqlr7z;Pwd=ghqbrniyhwe2lfwd;SslMode=Required;";
         }
     }
 }
