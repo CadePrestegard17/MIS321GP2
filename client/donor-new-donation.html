@@ -19,6 +19,14 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
     />
 
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="./styles/main.css" />
   </head>
@@ -90,33 +98,23 @@
             </div>
             <div class="card-body p-4">
               <form id="donation-form">
-                <div class="row">
+                <!-- Basic Information -->
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <h6 class="text-primary mb-3">
+                      <i class="bi bi-info-circle me-2"></i>Basic Information
+                    </h6>
+                  </div>
                   <div class="col-md-6">
                     <div class="mb-3">
                       <label for="itemName" class="form-label">Item Name *</label>
                       <input type="text" class="form-control" id="itemName" name="itemName" placeholder="e.g., Fresh Organic Vegetables" required>
                     </div>
+                  </div>
+                  <div class="col-md-6">
                     <div class="mb-3">
                       <label for="quantity" class="form-label">Quantity/Weight *</label>
                       <input type="text" class="form-control" id="quantity" name="quantity" placeholder="e.g., 25 lbs, 40 servings, 15 items" required>
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label">Pickup Window *</label>
-                      <div class="row">
-                        <div class="col-6">
-                          <label for="pickupStart" class="form-label small">Available from</label>
-                          <input type="datetime-local" class="form-control" id="pickupStart" name="pickupStart" required>
-                        </div>
-                        <div class="col-6">
-                          <label for="pickupEnd" class="form-label small">Available until</label>
-                          <input type="datetime-local" class="form-control" id="pickupEnd" name="pickupEnd" required>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="mb-3">
-                      <label for="address" class="form-label">Pickup Address *</label>
-                      <input type="text" class="form-control" id="address" name="address" placeholder="123 Main St, City, State 12345" required>
-                      <div class="form-text">Enter the exact address where nonprofits can pick up the donation.</div>
                     </div>
                   </div>
                   <div class="col-md-6">
@@ -132,30 +130,128 @@
                         <option value="Other">Other</option>
                       </select>
                     </div>
+                  </div>
+                  <div class="col-md-6">
                     <div class="mb-3">
                       <label for="safeUntil" class="form-label">Safe Until *</label>
-                      <input type="datetime-local" class="form-control" id="safeUntil" name="safeUntil" required>
+                      <input type="date" class="form-control" id="safeUntil" name="safeUntil" required>
+                      <div class="form-text">The date when this food will no longer be safe to consume.</div>
                     </div>
+                  </div>
+                </div>
+
+                <!-- Pickup Information -->
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <h6 class="text-primary mb-3">
+                      <i class="bi bi-calendar-event me-2"></i>Pickup Information
+                    </h6>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="pickupDate" class="form-label">Available Date *</label>
+                      <input type="date" class="form-control" id="pickupDate" name="pickupDate" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label class="form-label">Pickup Times</label>
+                      <div class="form-control-plaintext bg-light border rounded p-2 text-center">
+                        <i class="bi bi-clock me-2"></i>
+                        <strong>5:00 AM - 10:00 PM</strong>
+                      </div>
+                      <div class="form-text">Nonprofits can pick up anytime during these hours.</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Address Information -->
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <h6 class="text-primary mb-3">
+                      <i class="bi bi-geo-alt me-2"></i>Pickup Location
+                    </h6>
+                  </div>
+                  <div class="col-12">
+                    <div class="mb-3">
+                      <label for="address" class="form-label">Street Address *</label>
+                      <input type="text" class="form-control" id="address" name="address" placeholder="123 Main St" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="city" class="form-label">City *</label>
+                      <input type="text" class="form-control" id="city" name="city" placeholder="City" required>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="mb-3">
+                      <label for="state" class="form-label">State *</label>
+                      <input type="text" class="form-control" id="state" name="state" placeholder="ST" required>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <div class="mb-3">
+                      <label for="zipcode" class="form-label">ZIP Code *</label>
+                      <input type="text" class="form-control" id="zipcode" name="zipcode" placeholder="12345" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="country" class="form-label">Country *</label>
+                      <input type="text" class="form-control" id="country" name="country" placeholder="United States" value="United States" required>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Additional Information -->
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <h6 class="text-primary mb-3">
+                      <i class="bi bi-chat-text me-2"></i>Additional Information
+                    </h6>
+                  </div>
+                  <div class="col-12">
                     <div class="mb-3">
                       <label for="notes" class="form-label">Additional Notes</label>
-                      <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any additional details about the donation..."></textarea>
+                      <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="Any additional details about the donation, special instructions, or contact information..."></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Pickup Location Map -->
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <h6 class="text-primary mb-3">
+                      <i class="bi bi-map me-2"></i>Pickup Location Map
+                    </h6>
+                    <div class="card border-0 shadow-sm map-card">
+                      <div class="card-body p-0">
+                        <div id="map" style="height: 400px; width: 100%;"></div>
+                        <div class="card-footer bg-light border-0 text-center py-2">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Map updates automatically as you enter your address
+                          </small>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
                 
-                <div class="mb-3">
-                  <label class="form-label">Pickup Location</label>
-                  <div class="map-placeholder">
-                    <div class="text-center">
-                      <i class="bi bi-geo-alt fs-1 text-muted"></i>
-                      <p class="text-muted">Map will show pickup location here</p>
+                <!-- Submit Button -->
+                <div class="row">
+                  <div class="col-12">
+                    <hr class="my-4">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                      <button type="button" class="btn btn-outline-secondary me-md-2" onclick="window.history.back()">
+                        <i class="bi bi-arrow-left me-1"></i>Cancel
+                      </button>
+                      <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-check-circle me-1"></i>Post Donation
+                      </button>
                     </div>
                   </div>
-                </div>
-                
-                <div class="d-flex justify-content-end">
-                  <button type="button" class="btn btn-outline-secondary me-2">Cancel</button>
-                  <button type="submit" class="btn btn-primary">Post Donation</button>
                 </div>
               </form>
             </div>
@@ -169,6 +265,13 @@
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
       crossorigin="anonymous"
+    ></script>
+
+    <!-- Leaflet JS -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
     ></script>
 
     <!-- Custom JS -->

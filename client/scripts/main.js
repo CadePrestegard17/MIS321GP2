@@ -289,10 +289,10 @@ function setupEventListeners() {
     });
   }
   
-  // Real-time updates simulation
-  if (window.location.pathname.includes('nonprofit-feed')) {
-    simulateRealTimeUpdates();
-  }
+  // Real-time updates simulation - disabled since we now use real API data
+  // if (window.location.pathname.includes('nonprofit-feed')) {
+  //   simulateRealTimeUpdates();
+  // }
 }
 
 function handleFormSubmission(event) {
@@ -571,85 +571,9 @@ function updateProgressTimeline(donationId, status) {
   });
 }
 
-function simulateRealTimeUpdates() {
-  // Simulate new donation appearing
-  setTimeout(() => {
-    const newDonation = {
-      id: 'DON-NEW',
-      itemName: 'Fresh Salad Mix',
-      category: 'Produce',
-      quantity: '12 lbs',
-      safeUntil: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
-      pickupWindow: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString() + ' - ' + new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
-      address: '321 Elm St, Downtown',
-      notes: 'Mixed greens, perfect for salads',
-      status: 'open',
-      donorId: 'DONOR-004',
-      donorName: 'Fresh Market',
-      claimedBy: null,
-      claimedAt: null,
-      pickedUpAt: null,
-      deliveredAt: null,
-      createdAt: new Date().toISOString(),
-      distance: '1.2 mi'
-    };
-    
-    window.appState.donations.unshift(newDonation);
-    addDonationToFeed(newDonation);
-    showToast('New donation available nearby!', 'info');
-  }, 5000);
-}
+// Demo simulation functions removed - now using real API data only
 
-function addDonationToFeed(donation) {
-  const feedContainer = document.querySelector('.donations-feed');
-  if (feedContainer) {
-    const donationCard = createDonationCard(donation);
-    feedContainer.insertBefore(donationCard, feedContainer.firstChild);
-    
-    // Add animation
-    donationCard.style.opacity = '0';
-    donationCard.style.transform = 'translateY(-20px)';
-    setTimeout(() => {
-      donationCard.style.transition = 'all 0.5s ease';
-      donationCard.style.opacity = '1';
-      donationCard.style.transform = 'translateY(0)';
-    }, 100);
-  }
-}
-
-function createDonationCard(donation) {
-  const card = document.createElement('div');
-  card.className = 'card donation-card mb-3';
-  card.innerHTML = `
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-start mb-2">
-        <h6 class="card-title mb-0">${donation.itemName}</h6>
-        <span class="badge status-badge status-${donation.status}">${getStatusText(donation.status)}</span>
-      </div>
-      <div class="row">
-        <div class="col-md-8">
-          <p class="card-text">
-            <strong>${donation.category}</strong> • ${donation.quantity}<br>
-            <small class="text-muted">${donation.donorName} • ${donation.distance}</small>
-          </p>
-          <p class="card-text">
-            <small class="text-muted">
-              📍 ${donation.address}<br>
-              ⏰ Safe for ${getTimeRemaining(donation.safeUntil)}
-            </small>
-          </p>
-        </div>
-        <div class="col-md-4 text-end">
-          ${donation.status === 'open' ? 
-            `<button class="btn btn-primary btn-sm claim-btn" data-donation-id="${donation.id}">Claim</button>` :
-            `<small class="text-muted">Claimed by Community Food Bank</small>`
-          }
-        </div>
-      </div>
-    </div>
-  `;
-  return card;
-}
+// createDonationCard function moved to nonprofit-feed.js
 
 // Authentication functions
 async function handleLogin(form) {
