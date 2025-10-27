@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Available Donations - FoodFlow</title>
+    <title>My Claimed Donations - FoodFlow</title>
 
     <!-- Bootstrap CSS -->
     <link
@@ -46,12 +46,12 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="nonprofit-feed.html" data-role="nonprofit">
+              <a class="nav-link" href="nonprofit-feed.html" data-role="nonprofit">
                 <i class="bi bi-list-ul me-1"></i>Available Nearby
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="nonprofit-claimed.html" data-role="2">
+              <a class="nav-link active" href="nonprofit-claimed.html" data-role="nonprofit">
                 <i class="bi bi-check-circle me-1"></i>My Claims
               </a>
             </li>
@@ -88,7 +88,7 @@
         <div class="col-lg-8">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h3 mb-0">
-              <i class="bi bi-list-ul me-2"></i>Available Donations
+              <i class="bi bi-check-circle me-2"></i>My Claimed Donations
             </h1>
             <div>
               <button class="btn btn-outline-primary me-2">
@@ -101,11 +101,11 @@
             </div>
           </div>
 
-          <div class="alert alert-info">
+          <div class="alert alert-success">
             <div class="d-flex justify-content-between align-items-center">
               <div>
-                <i class="bi bi-broadcast me-2"></i>
-                <strong>Live Feed Active</strong> - New donations appear automatically
+                <i class="bi bi-check-circle me-2"></i>
+                <strong>Claims Active</strong> - Track your claimed donations
               </div>
               <div class="text-muted">
                 Last updated: <span class="last-updated">7:50 PM</span>
@@ -113,8 +113,8 @@
             </div>
           </div>
 
-          <div class="donations-feed">
-            <!-- Donations will be loaded dynamically -->
+          <div class="claimed-donations">
+            <!-- Claimed donations will be loaded dynamically -->
           </div>
         </div>
         
@@ -122,18 +122,18 @@
           <div class="card mb-3">
             <div class="card-header">
               <h6 class="mb-0">
-                <i class="bi bi-calendar me-2"></i>Today's Activity
+                <i class="bi bi-calendar me-2"></i>Claim Summary
               </h6>
             </div>
             <div class="card-body">
               <div class="row text-center">
                 <div class="col-6">
-                  <div class="fw-bold text-success">12</div>
-                  <small class="text-muted">Available</small>
+                  <div class="fw-bold text-warning">2</div>
+                  <small class="text-muted">Pending</small>
                 </div>
                 <div class="col-6">
-                  <div class="fw-bold text-primary">8</div>
-                  <small class="text-muted">Claimed</small>
+                  <div class="fw-bold text-success">1</div>
+                  <small class="text-muted">Ready</small>
                 </div>
               </div>
             </div>
@@ -142,17 +142,21 @@
           <div class="card mb-3">
             <div class="card-header">
               <h6 class="mb-0">
-                <i class="bi bi-check-circle me-2"></i>Your Claims
+                <i class="bi bi-clock me-2"></i>Recent Activity
               </h6>
             </div>
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-center mb-2">
-                <span>Pending Pickup</span>
-                <span class="badge bg-warning">2</span>
+                <span>Milk - 15 lbs</span>
+                <span class="badge bg-warning">Pending</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span>Pasta - 25 lbs</span>
+                <span class="badge bg-warning">Pending</span>
               </div>
               <div class="d-flex justify-content-between align-items-center">
-                <span>Ready for Pickup</span>
-                <span class="badge bg-success">1</span>
+                <span>Fresh Apples - 10 lbs</span>
+                <span class="badge bg-success">Ready</span>
               </div>
             </div>
           </div>
@@ -160,15 +164,27 @@
           <div class="card">
             <div class="card-header">
               <h6 class="mb-0">
-                <i class="bi bi-geo-alt me-2"></i>Nearby Donations
+                <i class="bi bi-info-circle me-2"></i>Claim Status
               </h6>
             </div>
             <div class="card-body">
-              <div class="map-placeholder">
-                <div class="text-center">
-                  <i class="bi bi-geo-alt fs-1 text-muted"></i>
-                  <p class="text-muted">Map showing nearby donations</p>
-                </div>
+              <div class="mb-2">
+                <small class="text-muted">
+                  <i class="bi bi-circle-fill text-warning me-1"></i>
+                  <strong>Pending:</strong> Waiting for pickup confirmation
+                </small>
+              </div>
+              <div class="mb-2">
+                <small class="text-muted">
+                  <i class="bi bi-circle-fill text-success me-1"></i>
+                  <strong>Ready:</strong> Confirmed and ready for pickup
+                </small>
+              </div>
+              <div>
+                <small class="text-muted">
+                  <i class="bi bi-circle-fill text-primary me-1"></i>
+                  <strong>In Transit:</strong> Being delivered by driver
+                </small>
               </div>
             </div>
           </div>
@@ -185,6 +201,6 @@
 
     <!-- Custom JS -->
     <script src="./scripts/main.js"></script>
-    <script src="./scripts/nonprofit-feed.js"></script>
+    <script src="./scripts/nonprofit-claimed.js"></script>
   </body>
 </html>

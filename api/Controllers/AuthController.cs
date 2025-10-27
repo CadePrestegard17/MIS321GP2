@@ -258,7 +258,7 @@ namespace FoodFlow.Controllers
                            u.first_name, u.last_name, u.business_name, u.organization_name
                     FROM donations d
                     LEFT JOIN users u ON d.donor_id = u.id
-                    WHERE d.status IN ('open', 'claimed')
+                    WHERE d.status = 'open'
                     ORDER BY d.created_at DESC";
                 
                 using var cmd = new MySqlCommand(sql, connection);

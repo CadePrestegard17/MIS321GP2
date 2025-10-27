@@ -214,7 +214,7 @@ namespace FoodFlow.Controllers
                            u.first_name, u.last_name, u.business_name, u.organization_name
                     FROM donations d
                     LEFT JOIN users u ON d.donor_id = u.id
-                    WHERE d.status IN ('open', 'claimed')
+                    WHERE d.status = 'open'
                     ORDER BY d.created_at DESC";
                 
                 using var getDonationsCmd = new MySqlCommand(getDonationsSql, connection);
@@ -253,6 +253,69 @@ namespace FoodFlow.Controllers
             {
                 Console.WriteLine($"Error getting donations: {ex.Message}");
                 return StatusCode(500, new { error = "An error occurred while fetching donations" });
+            }
+        }
+
+        [HttpGet("claimed")]
+        public async Task<ActionResult<object>> GetClaimedDonations()
+        {
+            try
+            {
+                var currentUser = GetCurrentUser();
+                if (currentUser == null || currentUser.Role != UserRole.Nonprofit)
+                {
+                    return Unauthorized(new { error = "Only nonprofits can view claimed donations" });
+                }
+
+                using var connection = new MySqlConnection(_database.cs);
+                connection.Open();
+                
+                var getClaimedSql = @"
+                    SELECT d.id, d.item_name, d.quantity, d.category, d.pickup_start, d.pickup_end, 
+                           d.safe_until, d.address, d.notes, d.donor_id, d.status, d.created_at,
+                           u.first_name, u.last_name, u.business_name, u.organization_name
+                    FROM donations d
+                    LEFT JOIN users u ON d.donor_id = u.id
+                    WHERE d.claimed_by_nonprofit_id = @nonprofit_id
+                    ORDER BY d.created_at DESC";
+                
+                using var getClaimedCmd = new MySqlCommand(getClaimedSql, connection);
+                getClaimedCmd.Parameters.AddWithValue("@nonprofit_id", currentUser.Id);
+                using var reader = await getClaimedCmd.ExecuteReaderAsync();
+                
+                var donations = new List<object>();
+                while (await reader.ReadAsync())
+                {
+                    donations.Add(new
+                    {
+                        id = reader.GetInt32(0),
+                        itemName = reader.GetString(1),
+                        quantity = reader.GetString(2),
+                        category = reader.GetString(3),
+                        pickupStart = reader.GetDateTime(4),
+                        pickupEnd = reader.GetDateTime(5),
+                        safeUntil = reader.GetDateTime(6),
+                        address = reader.GetString(7),
+                        notes = reader.IsDBNull(8) ? null : reader.GetString(8),
+                        donorId = reader.GetInt32(9),
+                        status = reader.GetString(10),
+                        createdAt = reader.GetDateTime(11),
+                        donor = new
+                        {
+                            firstName = reader.IsDBNull(12) ? null : reader.GetString(12),
+                            lastName = reader.IsDBNull(13) ? null : reader.GetString(13),
+                            businessName = reader.IsDBNull(14) ? null : reader.GetString(14),
+                            organizationName = reader.IsDBNull(15) ? null : reader.GetString(15)
+                        }
+                    });
+                }
+                
+                return Ok(new { donations });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting claimed donations: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while fetching claimed donations" });
             }
         }
 
@@ -464,15 +527,15 @@ namespace FoodFlow.Controllers
 
         private User? GetCurrentUser()
         {
-            // For now, return a mock donor user
+            // For now, return a mock nonprofit user for testing
             // In a real app, you'd get this from JWT token or session
             return new User
             {
-                Id = 2, // Using existing donor user from database
-                Email = "test@donor.com",
-                FirstName = "Test",
-                LastName = "Donor",
-                Role = UserRole.Donor
+                Id = 7, // Using existing nonprofit user from database (johndoenonprofit@gmail.com)
+                Email = "johndoenonprofit@gmail.com",
+                FirstName = "John",
+                LastName = "Doe",
+                Role = UserRole.Nonprofit
             };
         }
     }

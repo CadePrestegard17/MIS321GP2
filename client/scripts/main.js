@@ -740,7 +740,8 @@ function checkPageAccess() {
   // Define page access rules
   const pageAccess = {
     'donor-new-donation.html': [1], // Donor only
-    'nonprofit-feed.html': [2],     // Nonprofit only  
+    'nonprofit-feed.html': [2],     // Nonprofit only
+    'nonprofit-claimed.html': [2],  // Nonprofit only
     'driver-routes.html': [3],       // Driver only
     'admin-orgs.html': [4],          // Admin only
     'dashboard.html': [4]            // Admin only

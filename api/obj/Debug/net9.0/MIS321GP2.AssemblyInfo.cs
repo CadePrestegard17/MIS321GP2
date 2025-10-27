@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MIS321GP2")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b34b022559f849a2664365984995e2a693f82fdd")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+63916610f663cdba878299ff508f7e4836f6f161")]
 [assembly: System.Reflection.AssemblyProductAttribute("MIS321GP2")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MIS321GP2")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

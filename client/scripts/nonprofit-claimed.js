@@ -1,68 +1,60 @@
-// Nonprofit Feed Page JavaScript
-console.log('Nonprofit feed page loaded');
+// Nonprofit Claimed Donations Page JavaScript
+console.log('Nonprofit claimed donations page loaded');
 
-// Global variables
-let donationsWithDistance = [];
-
-// Initialize the feed
+// Initialize the page
 document.addEventListener('DOMContentLoaded', function() {
-    initializeFeed();
+    initializeClaimedDonations();
 });
 
-function initializeFeed() {
-    loadDonations();
+function initializeClaimedDonations() {
+    loadClaimedDonations();
     
     // Set up refresh button
     const refreshBtn = document.querySelector('.btn-outline-primary');
     if (refreshBtn) {
-        refreshBtn.addEventListener('click', loadDonations);
+        refreshBtn.addEventListener('click', loadClaimedDonations);
     }
     
-    // Set up claim buttons
-    document.addEventListener('click', function(event) {
-        if (event.target.classList.contains('claim-btn')) {
-            const donationId = event.target.getAttribute('data-donation-id');
-            claimDonation(donationId);
-        }
-    });
-    
     // Auto-refresh every 30 seconds
-    setInterval(loadDonations, 30000);
+    setInterval(loadClaimedDonations, 30000);
 }
 
-async function loadDonations() {
+async function loadClaimedDonations() {
     try {
-        const response = await fetch('/api/auth/donations-with-donors');
+        const response = await fetch('/api/donation/claimed');
         const result = await response.json();
         
         if (result.donations) {
-            displayDonations(result.donations);
-            updateStats(result.donations);
+            displayClaimedDonations(result.donations);
+            updateClaimStats(result.donations);
             updateLastUpdated();
         } else {
-            console.error('Failed to load donations:', result);
-            showAlert('Failed to load donations', 'danger');
+            console.error('Failed to load claimed donations:', result);
+            showAlert('Failed to load claimed donations', 'danger');
         }
     } catch (error) {
-        console.error('Error loading donations:', error);
-        showAlert('An error occurred while loading donations', 'danger');
+        console.error('Error loading claimed donations:', error);
+        showAlert('An error occurred while loading claimed donations', 'danger');
     }
 }
 
-function displayDonations(donations) {
-    const feedContainer = document.querySelector('.donations-feed');
-    if (!feedContainer) return;
+function displayClaimedDonations(donations) {
+    const container = document.querySelector('.claimed-donations');
+    if (!container) return;
     
     // Clear existing donations
-    feedContainer.innerHTML = '';
+    container.innerHTML = '';
     
     if (donations.length === 0) {
-        feedContainer.innerHTML = `
+        container.innerHTML = `
             <div class="card">
                 <div class="card-body text-center py-5">
                     <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
-                    <h5 class="text-muted">No donations available</h5>
-                    <p class="text-muted">Check back later for new donations!</p>
+                    <h5 class="text-muted">No claimed donations</h5>
+                    <p class="text-muted">You haven't claimed any donations yet!</p>
+                    <a href="nonprofit-feed.html" class="btn btn-primary">
+                        <i class="bi bi-list-ul me-1"></i>Browse Available Donations
+                    </a>
                 </div>
             </div>
         `;
@@ -70,37 +62,18 @@ function displayDonations(donations) {
     }
     
     donations.forEach(donation => {
-        const donationCard = createDonationCard(donation);
-        feedContainer.appendChild(donationCard);
+        const donationCard = createClaimedDonationCard(donation);
+        container.appendChild(donationCard);
     });
 }
 
-function getDonorDisplayName(donor) {
-    if (!donor) return 'Anonymous Donor';
-    
-    // Prioritize business/organization name over personal name
-    if (donor.businessName) {
-        return donor.businessName;
-    }
-    if (donor.organizationName) {
-        return donor.organizationName;
-    }
-    
-    // Fall back to personal name
-    if (donor.firstName && donor.lastName) {
-        return `${donor.firstName} ${donor.lastName}`;
-    }
-    
-    return 'Anonymous Donor';
-}
-
-function createDonationCard(donation) {
+function createClaimedDonationCard(donation) {
     const card = document.createElement('div');
-    card.className = 'card donation-card mb-3';
+    card.className = 'card claimed-donation-card mb-3';
     card.setAttribute('data-donation-id', donation.id);
     
-    const statusClass = getStatusClass(donation.status);
-    const statusText = getStatusText(donation.status);
+    const statusClass = getClaimStatusClass(donation.status);
+    const statusText = getClaimStatusText(donation.status);
     const timeInfo = getTimeInfo(donation);
     const donorName = getDonorDisplayName(donation.donor);
     
@@ -125,7 +98,7 @@ function createDonationCard(donation) {
                     ${donation.notes ? `<p class="card-text"><small class="text-muted">${donation.notes}</small></p>` : ''}
                 </div>
                 <div class="col-md-4 text-end">
-                    ${getActionButton(donation)}
+                    ${getClaimActionButton(donation)}
                 </div>
             </div>
         </div>
@@ -134,23 +107,21 @@ function createDonationCard(donation) {
     return card;
 }
 
-function getStatusClass(status) {
+function getClaimStatusClass(status) {
     switch (status) {
-        case 'open': return 'status-open';
         case 'claimed': return 'status-claimed';
         case 'picked_up': return 'status-picked-up';
-        case 'expired': return 'status-expired';
-        default: return 'status-open';
+        case 'delivered': return 'status-delivered';
+        default: return 'status-claimed';
     }
 }
 
-function getStatusText(status) {
+function getClaimStatusText(status) {
     switch (status) {
-        case 'open': return 'Open';
-        case 'claimed': return 'Claimed';
-        case 'picked_up': return 'Picked Up';
-        case 'expired': return 'Expired';
-        default: return 'Open';
+        case 'claimed': return 'Pending Pickup';
+        case 'picked_up': return 'In Transit';
+        case 'delivered': return 'Delivered';
+        default: return 'Pending Pickup';
     }
 }
 
@@ -175,7 +146,6 @@ function getTimeInfo(donation) {
 
 function formatAddress(addressString) {
     // Parse the combined address string back into components
-    // Format: "123 Main St, City, State ZIP, Country"
     const parts = addressString.split(', ');
     if (parts.length >= 4) {
         const street = parts[0];
@@ -196,31 +166,48 @@ function getDistanceText() {
     return distances[Math.floor(Math.random() * distances.length)];
 }
 
-function getActionButton(donation) {
+function getDonorDisplayName(donor) {
+    if (!donor) return 'Anonymous Donor';
+    
+    // Prioritize business/organization name over personal name
+    if (donor.businessName) {
+        return donor.businessName;
+    }
+    if (donor.organizationName) {
+        return donor.organizationName;
+    }
+    
+    // Fall back to personal name
+    if (donor.firstName && donor.lastName) {
+        return `${donor.firstName} ${donor.lastName}`;
+    }
+    
+    return 'Anonymous Donor';
+}
+
+function getClaimActionButton(donation) {
     switch (donation.status) {
-        case 'open':
-            return `<button class="btn btn-primary btn-sm claim-btn" data-donation-id="${donation.id}">Claim</button>`;
         case 'claimed':
-            return `<small class="text-muted">Claimed by ${donation.ClaimedBy ? (donation.ClaimedBy.FirstName + ' ' + donation.ClaimedBy.LastName) : 'Another nonprofit'}</small>`;
+            return `<small class="text-muted">Waiting for pickup confirmation</small>`;
         case 'picked_up':
             return `<small class="text-muted">In transit${donation.AssignedDriver ? ' with ' + donation.AssignedDriver.FirstName : ''}</small>`;
-        case 'expired':
-            return `<small class="text-muted">No longer available</small>`;
+        case 'delivered':
+            return `<small class="text-success"><i class="bi bi-check-circle me-1"></i>Delivered</small>`;
         default:
-            return `<button class="btn btn-primary btn-sm claim-btn" data-donation-id="${donation.id}">Claim</button>`;
+            return `<small class="text-muted">Processing...</small>`;
     }
 }
 
-function updateStats(donations) {
-    const availableCount = donations.filter(d => d.status === 'open').length;
-    const claimedCount = donations.filter(d => d.status === 'claimed').length;
+function updateClaimStats(donations) {
+    const pendingCount = donations.filter(d => d.status === 'claimed').length;
+    const readyCount = donations.filter(d => d.status === 'picked_up').length;
     
     // Update stats in sidebar
-    const availableElement = document.querySelector('.col-6:first-child .fw-bold.text-success');
-    const claimedElement = document.querySelector('.col-6:last-child .fw-bold.text-primary');
+    const pendingElement = document.querySelector('.col-6:first-child .fw-bold.text-warning');
+    const readyElement = document.querySelector('.col-6:last-child .fw-bold.text-success');
     
-    if (availableElement) availableElement.textContent = availableCount;
-    if (claimedElement) claimedElement.textContent = claimedCount;
+    if (pendingElement) pendingElement.textContent = pendingCount;
+    if (readyElement) readyElement.textContent = readyCount;
 }
 
 function updateLastUpdated() {
@@ -230,31 +217,6 @@ function updateLastUpdated() {
         lastUpdatedElement.textContent = now.toLocaleTimeString();
     }
 }
-
-async function claimDonation(donationId) {
-    try {
-        const response = await fetch(`/api/donation/${donationId}/claim`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
-        
-        const result = await response.json();
-        
-        if (result.success) {
-            showAlert('Donation claimed successfully!', 'success');
-            // Refresh the feed
-            setTimeout(loadDonations, 1000);
-        } else {
-            showAlert(result.message || 'Failed to claim donation', 'danger');
-        }
-    } catch (error) {
-        console.error('Error claiming donation:', error);
-        showAlert('An error occurred while claiming the donation', 'danger');
-    }
-}
-
 
 function showAlert(message, type) {
     // Remove existing alerts
