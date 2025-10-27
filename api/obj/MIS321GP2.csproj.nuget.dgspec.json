@@ -1,30 +1,30 @@
 {
   "format": 1,
   "restore": {
-    "/Users/cadeprestegard/Desktop/321GP2/321GP/MIS321GP2/api/MIS321GP2.csproj": {}
+    "C:\\source\\repos\\MIS321\\GitHub\\MIS321GP2\\api\\MIS321GP2.csproj": {}
   },
   "projects": {
-    "/Users/cadeprestegard/Desktop/321GP2/321GP/MIS321GP2/api/MIS321GP2.csproj": {
+    "C:\\source\\repos\\MIS321\\GitHub\\MIS321GP2\\api\\MIS321GP2.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/cadeprestegard/Desktop/321GP2/321GP/MIS321GP2/api/MIS321GP2.csproj",
+        "projectUniqueName": "C:\\source\\repos\\MIS321\\GitHub\\MIS321GP2\\api\\MIS321GP2.csproj",
         "projectName": "MIS321GP2",
-        "projectPath": "/Users/cadeprestegard/Desktop/321GP2/321GP/MIS321GP2/api/MIS321GP2.csproj",
-        "packagesPath": "/Users/cadeprestegard/.nuget/packages/",
-        "outputPath": "/Users/cadeprestegard/Desktop/321GP2/321GP/MIS321GP2/api/obj/",
+        "projectPath": "C:\\source\\repos\\MIS321\\GitHub\\MIS321GP2\\api\\MIS321GP2.csproj",
+        "packagesPath": "C:\\Users\\store\\.nuget\\packages\\",
+        "outputPath": "C:\\source\\repos\\MIS321\\GitHub\\MIS321GP2\\api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/cadeprestegard/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\store\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net9.0"
+          "net8.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net9.0": {
-            "targetAlias": "net9.0",
+          "net8.0": {
+            "targetAlias": "net8.0",
             "projectReferences": {}
           }
         },
@@ -37,17 +37,12 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.100"
+        }
       },
       "frameworks": {
-        "net9.0": {
-          "targetAlias": "net9.0",
+        "net8.0": {
+          "targetAlias": "net8.0",
           "dependencies": {
-            "Microsoft.AspNetCore.OpenApi": {
-              "target": "Package",
-              "version": "[9.0.0, )"
-            },
             "MySql.Data": {
               "target": "Package",
               "version": "[9.5.0, )"
@@ -72,7 +67,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.101/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.404/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

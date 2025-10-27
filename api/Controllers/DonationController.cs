@@ -250,12 +250,30 @@ namespace FoodFlow.Controllers
         }
 
         [HttpPost("{id}/claim")]
-        public async Task<ActionResult<DonationResponse>> ClaimDonation(int id)
+        public async Task<ActionResult<DonationResponse>> ClaimDonation(int id, [FromBody] ClaimDonationRequest? request)
         {
             try
             {
-                var currentUser = GetCurrentUser();
-                if (currentUser == null || currentUser.Role != UserRole.Nonprofit)
+                if (request == null || request.UserId == 0)
+                {
+                    return Unauthorized(new DonationResponse
+                    {
+                        Success = false,
+                        Message = "User ID is required"
+                    });
+                }
+                
+                var currentUser = await GetUserById(request.UserId);
+                if (currentUser == null)
+                {
+                    return Unauthorized(new DonationResponse
+                    {
+                        Success = false,
+                        Message = "User not found"
+                    });
+                }
+                
+                if (currentUser.Role != UserRole.Nonprofit)
                 {
                     return Unauthorized(new DonationResponse
                     {
@@ -468,5 +486,60 @@ namespace FoodFlow.Controllers
                 Role = UserRole.Donor
             };
         }
+        
+        private async Task<User?> GetUserById(int userId)
+        {
+            try
+            {
+                using var connection = new MySqlConnection(_database.cs);
+                connection.Open();
+                
+                var sql = @"
+                    SELECT id, email, password_hash, first_name, last_name, role, 
+                           account_status, email_verified, created_at, last_login
+                    FROM users 
+                    WHERE id = @id";
+                
+                using var cmd = new MySqlCommand(sql, connection);
+                cmd.Parameters.AddWithValue("@id", userId);
+                
+                using var reader = await cmd.ExecuteReaderAsync();
+                if (!await reader.ReadAsync())
+                {
+                    return null;
+                }
+                
+                var roleString = reader.GetString(5);
+                var role = roleString switch
+                {
+                    "donor" => UserRole.Donor,
+                    "nonprofit" => UserRole.Nonprofit,
+                    "driver" => UserRole.Driver,
+                    "admin" => UserRole.Admin,
+                    _ => UserRole.Donor
+                };
+                
+                return new User
+                {
+                    Id = reader.GetInt32(0),
+                    Email = reader.GetString(1),
+                    PasswordHash = reader.GetString(2),
+                    FirstName = reader.GetString(3),
+                    LastName = reader.GetString(4),
+                    Role = role,
+                    CreatedAt = reader.GetDateTime(8)
+                };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting user by ID: {ex.Message}");
+                return null;
+            }
+        }
+    }
+    
+    public class ClaimDonationRequest
+    {
+        public int UserId { get; set; }
     }
 }

@@ -197,13 +197,50 @@ function setCurrentUser(user) {
 
 function updateNavigationForRole(role) {
   const navLinks = document.querySelectorAll('.nav-link[data-role]');
+  
+  // Track if we've already updated navigation for admin to prevent re-running
+  const isAdmin = role === 4;
+  if (isAdmin) {
+    // For admin, only update navigation label once, then keep it consistent
+    let hasUpdated = false;
+    navLinks.forEach(link => {
+      if (link.dataset.adminLabel && !hasUpdated) {
+        hasUpdated = true;
+        // This will be handled below
+      }
+    });
+  }
+  
   navLinks.forEach(link => {
     const requiredRoles = link.dataset.role.split(',');
     const isAllowed = role && requiredRoles.includes(role.toString());
-    const isAdmin = role === 4; // Admin can see all links
     
     if (isAllowed || isAdmin) {
       link.style.display = 'block';
+      
+      // Update label and icon ONLY for the nonprofit feed link AND only if not already updated
+      if (link.href && link.href.includes('nonprofit-feed.html')) {
+        // Check if this link has already been updated to prevent re-running
+        if (link.dataset.adminUpdated) {
+          // Already updated, skip
+          return;
+        }
+        
+        if (isAdmin && link.dataset.adminLabel) {
+          // For admin, show "Donations" with gift icon
+          const icon = link.dataset.adminIcon || 'bi-gift';
+          link.innerHTML = `<i class="bi ${icon} me-1"></i>${link.dataset.adminLabel}`;
+          link.dataset.adminUpdated = 'true'; // Mark as updated
+        } else if (role === 2) {
+          // For nonprofits, show "Dashboard" with chart icon
+          link.innerHTML = `<i class="bi bi-graph-up me-1"></i>Dashboard`;
+          link.dataset.adminUpdated = 'true';
+        } else if (role === 1 || role === 3) {
+          // For other roles, show "Dashboard" with chart icon
+          link.innerHTML = `<i class="bi bi-graph-up me-1"></i>Dashboard`;
+          link.dataset.adminUpdated = 'true';
+        }
+      }
     } else {
       link.style.display = 'none';
     }
@@ -217,6 +254,15 @@ function updateNavigationForRole(role) {
       roleBadge.textContent = roleNames[role] || 'USER';
     } else {
       roleBadge.textContent = 'GUEST';
+    }
+    
+    // Ensure the parent has the correct structure
+    const parent = roleBadge.parentElement;
+    if (parent) {
+      // Remove any conflicting classes
+      parent.classList.remove('navbar-text');
+      // Add the correct classes
+      parent.classList.add('nav-link', 'd-flex', 'align-items-center', 'me-3');
     }
   }
   
@@ -734,8 +780,14 @@ function checkPageAccess() {
       return;
     }
     
-    // If user role not allowed, redirect to their role page
+    // If user role not allowed, redirect to their role page (unless admin)
     if (!allowedRoles.includes(user.role)) {
+      // Admins can access all pages
+      if (user.role === 4) {
+        console.log('checkPageAccess - admin accessing all pages, allowing access');
+        return;
+      }
+      
       console.log('checkPageAccess - user role not allowed, redirecting to role page');
       const rolePages = {
         1: 'donor-new-donation.html', // Donor

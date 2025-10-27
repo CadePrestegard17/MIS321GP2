@@ -31,15 +31,25 @@ document.addEventListener('DOMContentLoaded', function() {
         roleSelect.addEventListener('change', function() {
             const role = this.value;
             
-            // Hide all role-specific fields
+            // Get role-specific input fields
+            const businessName = document.getElementById('business-name');
+            const businessType = document.getElementById('business-type');
+            const orgName = document.getElementById('org-name');
+            const orgType = document.getElementById('org-type');
+            
+            // Hide all role-specific fields and remove required attribute
             donorFields.style.display = 'none';
             nonprofitFields.style.display = 'none';
+            businessType?.removeAttribute('required');
+            orgType?.removeAttribute('required');
             
             // Show relevant fields based on role
             if (role === '1') { // Donor
                 donorFields.style.display = 'block';
+                businessType?.setAttribute('required', 'required');
             } else if (role === '2') { // Nonprofit
                 nonprofitFields.style.display = 'block';
+                orgType?.setAttribute('required', 'required');
             }
         });
     }
