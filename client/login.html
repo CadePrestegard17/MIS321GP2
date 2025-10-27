@@ -47,7 +47,7 @@
             </li>
             <li class="nav-item">
               <a class="nav-link" href="nonprofit-feed.html" data-role="2">
-                <i class="bi bi-list-ul me-1"></i>Available Nearby
+                <i class="bi bi-graph-up me-1"></i>Dashboard
               </a>
             </li>
             <li class="nav-item">
@@ -63,7 +63,7 @@
           </ul>
           <ul class="navbar-nav">
             <li class="nav-item">
-              <span class="navbar-text me-3">
+              <span class="nav-link d-flex align-items-center me-3">
                 <span class="role-badge">GUEST</span>
               </span>
             </li>
@@ -166,7 +166,19 @@
                     <div class="col-md-6">
                       <div class="mb-3">
                         <label for="business-type" class="form-label">Business Type</label>
-                        <input type="text" class="form-control" id="business-type" name="businessType">
+                        <select class="form-select" id="business-type" name="businessType">
+                          <option value="">Select business type</option>
+                          <option value="Restaurant">Restaurant</option>
+                          <option value="Bakery">Bakery</option>
+                          <option value="Grocery Store">Grocery Store</option>
+                          <option value="Cafe">Cafe</option>
+                          <option value="Catering">Catering</option>
+                          <option value="Food Delivery Service">Food Delivery Service</option>
+                          <option value="Food Manufacturer">Food Manufacturer</option>
+                          <option value="Convenience Store">Convenience Store</option>
+                          <option value="Farm">Farm</option>
+                          <option value="Other">Other</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -222,7 +234,18 @@
                     <div class="col-md-6">
                       <div class="mb-3">
                         <label for="org-type" class="form-label">Organization Type</label>
-                        <input type="text" class="form-control" id="org-type" name="organizationType">
+                        <select class="form-select" id="org-type" name="organizationType">
+                          <option value="">Select organization type</option>
+                          <option value="Food Bank">Food Bank</option>
+                          <option value="Soup Kitchen">Soup Kitchen</option>
+                          <option value="Shelter">Shelter</option>
+                          <option value="Community Center">Community Center</option>
+                          <option value="Nonprofit Organization">Nonprofit Organization</option>
+                          <option value="Religious Organization">Religious Organization</option>
+                          <option value="Social Services">Social Services</option>
+                          <option value="School Program">School Program</option>
+                          <option value="Other">Other</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -293,7 +316,7 @@
     ></script>
 
     <!-- Custom JS -->
-    <script src="./scripts/main.js"></script>
+    <script src="./scripts/main.js?v=8"></script>
     <script src="./scripts/login.js"></script>
   </body>
 </html>

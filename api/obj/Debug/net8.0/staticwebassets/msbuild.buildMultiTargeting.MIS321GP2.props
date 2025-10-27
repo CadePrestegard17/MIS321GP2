@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\MIS321GP2.props" />
+</Project>
