@@ -4,6 +4,9 @@ console.log('Nonprofit feed page loaded');
 // Global variables
 let donationsWithDistance = [];
 
+// Global state for filtering
+let currentFilter = 'all';
+
 // Initialize the feed
 document.addEventListener('DOMContentLoaded', function() {
     initializeFeed();
@@ -13,10 +16,20 @@ function initializeFeed() {
     loadDonations();
     
     // Set up refresh button
-    const refreshBtn = document.querySelector('.btn-outline-primary');
+    const refreshBtn = document.getElementById('refresh-donations-btn');
     if (refreshBtn) {
-        refreshBtn.addEventListener('click', loadDonations);
+        refreshBtn.addEventListener('click', handleRefreshDonations);
     }
+    
+    // Set up filter options
+    const filterOptions = document.querySelectorAll('.filter-option');
+    filterOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.preventDefault();
+            const filter = this.getAttribute('data-filter');
+            applyDonationFilter(filter);
+        });
+    });
     
     // Set up claim buttons
     document.addEventListener('click', function(event) {
@@ -28,6 +41,107 @@ function initializeFeed() {
     
     // Auto-refresh every 30 seconds
     setInterval(loadDonations, 30000);
+}
+
+function handleRefreshDonations() {
+    console.log('Refreshing donations...');
+    showToastMessage('Refreshing donations...', 'info');
+    
+    // Simulate a refresh delay
+    setTimeout(() => {
+        location.reload();
+    }, 500);
+}
+
+function showToastMessage(message, type) {
+    // Use the showToast function from main.js if available, otherwise use alert
+    if (typeof showToast === 'function') {
+        showToast(message, type);
+    } else {
+        // Create a simple toast notification
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-white bg-${type} border-0`;
+        toast.setAttribute('role', 'alert');
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+        
+        let container = document.querySelector('.toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            document.body.appendChild(container);
+        }
+        
+        container.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+        
+        toast.addEventListener('hidden.bs.toast', () => {
+            container.removeChild(toast);
+        });
+    }
+}
+
+function applyDonationFilter(filter) {
+    console.log('Applying filter:', filter);
+    currentFilter = filter;
+    
+    // Update filter button text
+    const filterBtn = document.getElementById('filter-donations-btn');
+    const filterOptions = document.querySelectorAll('.filter-option');
+    filterOptions.forEach(option => {
+        const optionFilter = option.getAttribute('data-filter');
+        if (optionFilter === filter) {
+            filterBtn.innerHTML = `<i class="bi bi-funnel me-1"></i>Filter: ${option.textContent}`;
+        }
+    });
+    
+    // Filter the donation cards
+    const donationCards = document.querySelectorAll('.donation-card');
+    let visibleCount = 0;
+    
+    donationCards.forEach(card => {
+        let shouldShow = true;
+        
+        if (filter === 'all') {
+            shouldShow = true;
+        } else if (filter === 'open') {
+            const statusBadge = card.querySelector('.status-open');
+            shouldShow = statusBadge !== null;
+        } else if (filter === 'claimed') {
+            const statusBadge = card.querySelector('.status-claimed');
+            shouldShow = statusBadge !== null;
+        } else if (filter === 'expired') {
+            const statusBadge = card.querySelector('.status-expired');
+            shouldShow = statusBadge !== null;
+        } else if (filter === 'produce' || filter === 'bakery' || filter === 'prepared' || filter === 'dairy' || filter === 'other') {
+            // Filter by category (case-insensitive)
+            const cardText = card.textContent.toLowerCase();
+            const categoryMap = {
+                'produce': ['produce', 'vegetable', 'fruit'],
+                'bakery': ['bakery', 'bread', 'pastry'],
+                'prepared': ['prepared', 'meal', 'catering'],
+                'dairy': ['dairy', 'milk', 'cheese', 'yogurt', 'butter'],
+                'other': []
+            };
+            
+            const keywords = categoryMap[filter];
+            shouldShow = keywords.some(keyword => cardText.includes(keyword.toLowerCase()));
+        }
+        
+        if (shouldShow) {
+            card.style.display = '';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    showToastMessage(`Showing ${visibleCount} donations`, 'success');
 }
 
 async function loadDonations() {
@@ -233,11 +347,22 @@ function updateLastUpdated() {
 
 async function claimDonation(donationId) {
     try {
+        // Get current user from local storage
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        
+        if (!currentUser || !currentUser.id) {
+            showAlert('Please log in to claim donations', 'danger');
+            return;
+        }
+        
         const response = await fetch(`/api/donation/${donationId}/claim`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-            }
+            },
+            body: JSON.stringify({
+                userId: currentUser.id
+            })
         });
         
         const result = await response.json();

@@ -1,3 +1,92 @@
+// Global test
+console.log('DRIVER ROUTES SCRIPT LOADED');
+
+// Make showRouteDetails globally accessible immediately
+window.showRouteDetails = function(routeId) {
+    console.log('showRouteDetails called with:', routeId);
+    
+    // Route data mapping
+    const routeData = {
+        'ROUTE-001': {
+            id: 'ROUTE-001',
+            status: 'Assigned',
+            distance: '8.5 mi',
+            duration: '25 min',
+            priority: 'HIGH',
+            pickupAddress: '123 Main St, Downtown',
+            pickupOrg: 'Green Grocery Co.',
+            dropoffAddress: 'Community Food Bank, 100 Help St',
+            dropoffOrg: 'Community Food Bank',
+            items: ['Fresh Organic Vegetables (25 lbs)'],
+            driver: 'John Driver',
+            estimatedArrival: '2:30 PM'
+        },
+        'ROUTE-002': {
+            id: 'ROUTE-002',
+            status: 'Available',
+            distance: '6.2 mi',
+            duration: '18 min',
+            priority: 'MEDIUM',
+            pickupAddress: '456 Oak Ave, Midtown',
+            pickupOrg: 'Bakery Bliss',
+            dropoffAddress: 'Hope Kitchen, 200 Care Blvd',
+            dropoffOrg: 'Hope Kitchen',
+            items: ['Artisan Bread (15 items)'],
+            driver: 'Not assigned',
+            estimatedArrival: '4:00 PM'
+        }
+    };
+    
+    const route = routeData[routeId];
+    if (!route) {
+        showToast('Route not found', 'danger');
+        return;
+    }
+    
+    // Populate modal
+    const modalContent = document.getElementById('routeDetailsContent');
+    const priorityClass = route.priority === 'HIGH' ? 'danger' : 'warning';
+    
+    modalContent.innerHTML = `
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <h6>Route Information</h6>
+                <p><strong>Route ID:</strong> ${route.id}</p>
+                <p><strong>Status:</strong> <span class="badge bg-${route.status === 'Assigned' ? 'warning' : 'success'}">${route.status}</span></p>
+                <p><strong>Priority:</strong> <span class="badge bg-${priorityClass}">${route.priority}</span></p>
+                <p><strong>Driver:</strong> ${route.driver}</p>
+            </div>
+            <div class="col-md-6">
+                <h6>Route Metrics</h6>
+                <p><strong>Distance:</strong> ${route.distance}</p>
+                <p><strong>Estimated Duration:</strong> ${route.duration}</p>
+                <p><strong>Estimated Arrival:</strong> ${route.estimatedArrival}</p>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12">
+                <h6 class="border-bottom pb-2 mb-3">Pickup Location</h6>
+                <p><i class="bi bi-geo-alt-fill text-danger me-2"></i><strong>${route.pickupOrg}</strong></p>
+                <p class="text-muted">${route.pickupAddress}</p>
+                
+                <h6 class="border-bottom pb-2 mb-3 mt-4">Drop-off Location</h6>
+                <p><i class="bi bi-house-fill text-success me-2"></i><strong>${route.dropoffOrg}</strong></p>
+                <p class="text-muted">${route.dropoffAddress}</p>
+                
+                <h6 class="border-bottom pb-2 mb-3 mt-4">Items</h6>
+                <ul>
+                    ${route.items.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+            </div>
+        </div>
+    `;
+    
+    // Show modal
+    const modal = new bootstrap.Modal(document.getElementById('routeDetailsModal'));
+    modal.show();
+};
+
 // Driver routes page specific functionality
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Driver routes page loaded');
@@ -5,12 +94,104 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load driver routes
     loadDriverRoutes();
     
-    // Set up refresh functionality
-    const refreshBtn = document.getElementById('refresh-routes');
+    // Set up refresh button
+    const refreshBtn = document.getElementById('refresh-routes-btn');
     if (refreshBtn) {
-        refreshBtn.addEventListener('click', loadDriverRoutes);
+        refreshBtn.addEventListener('click', handleRefreshRoutes);
     }
+    
+    // Set up filter options
+    const filterOptions = document.querySelectorAll('.filter-option');
+    filterOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.preventDefault();
+            const filter = this.getAttribute('data-filter');
+            applyRouteFilter(filter);
+        });
+    });
+    
+    // Set up start route buttons
+    const startRouteBtns = document.querySelectorAll('.start-route-btn');
+    startRouteBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const routeId = this.getAttribute('data-route-id');
+            console.log('Start Route clicked for:', routeId);
+            handleStartRoute(routeId, this);
+        });
+    });
 });
+
+function handleRefreshRoutes() {
+    console.log('Refreshing routes...');
+    showToast('Refreshing routes...', 'info');
+    
+    // Simulate a refresh delay
+    setTimeout(() => {
+        location.reload();
+    }, 500);
+}
+
+function applyRouteFilter(filter) {
+    console.log('Applying filter:', filter);
+    
+    // Update filter button text
+    const filterBtn = document.getElementById('filter-routes-btn');
+    const filterOptions = document.querySelectorAll('.filter-option');
+    filterOptions.forEach(option => {
+        const optionFilter = option.getAttribute('data-filter');
+        if (optionFilter === filter) {
+            filterBtn.innerHTML = `<i class="bi bi-funnel me-1"></i>Filter: ${option.textContent}`;
+        }
+    });
+    
+    // Get all route cards
+    const routeCards = document.querySelectorAll('.route-stop');
+    let visibleCount = 0;
+    
+    routeCards.forEach(card => {
+        let shouldShow = true;
+        
+        if (filter === 'all') {
+            shouldShow = true;
+        } else if (filter === 'high') {
+            const priorityBadge = card.querySelector('.badge.bg-danger');
+            shouldShow = priorityBadge !== null;
+        } else if (filter === 'medium') {
+            const priorityBadge = card.querySelector('.badge.bg-warning');
+            shouldShow = priorityBadge !== null;
+        } else if (filter === 'low') {
+            const priorityBadge = card.querySelector('.badge.bg-info, .badge.bg-secondary');
+            shouldShow = priorityBadge !== null;
+        }
+        
+        if (shouldShow) {
+            card.style.display = '';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    showToast(`Showing ${visibleCount} routes`, 'success');
+}
+
+function handleStartRoute(routeId, buttonElement) {
+    console.log('Starting route:', routeId);
+    
+    // Update button text and style
+    buttonElement.innerHTML = '<i class="bi bi-check-circle me-1"></i>Already Assigned';
+    buttonElement.className = 'btn btn-secondary btn-sm';
+    buttonElement.disabled = true;
+    
+    // Show success message
+    showToast(`Route ${routeId} started successfully!`, 'success');
+    
+    // TODO: Replace with actual API call
+    // const response = await fetch(`/api/routes/${routeId}/start`, {
+    //     method: 'POST'
+    // });
+}
 
 function loadDriverRoutes() {
     console.log('Loading driver routes...');

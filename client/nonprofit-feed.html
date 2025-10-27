@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Available Donations - FoodFlow</title>
 
     <!-- Bootstrap CSS -->
@@ -20,7 +23,7 @@
     />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="./styles/main.css" />
+    <link rel="stylesheet" href="./styles/main.css?v=1654123456789" />
   </head>
   <body>
     <!-- Navigation -->
@@ -36,18 +39,18 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav me-auto">
             <li class="nav-item">
-              <a class="nav-link" href="dashboard.html">
+              <a class="nav-link" href="dashboard.html" data-role="4">
                 <i class="bi bi-graph-up me-1"></i>Dashboard
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="donor-new-donation.html" data-role="donor">
+              <a class="nav-link" href="donor-new-donation.html" data-role="1">
                 <i class="bi bi-plus-circle me-1"></i>New Donation
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" href="nonprofit-feed.html" data-role="nonprofit">
-                <i class="bi bi-list-ul me-1"></i>Available Nearby
+              <a class="nav-link active" href="nonprofit-feed.html" data-role="2,4" data-admin-label="Donations" data-admin-icon="bi-gift">
+                <i class="bi bi-graph-up me-1"></i>Dashboard
               </a>
             </li>
             <li class="nav-item">
@@ -56,19 +59,19 @@
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="driver-routes.html" data-role="driver">
+              <a class="nav-link" href="driver-routes.html" data-role="3">
                 <i class="bi bi-truck me-1"></i>Routes
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="admin-orgs.html" data-role="admin">
+              <a class="nav-link" href="admin-orgs.html" data-role="4">
                 <i class="bi bi-people me-1"></i>Organizations
               </a>
             </li>
           </ul>
           <ul class="navbar-nav">
             <li class="nav-item">
-              <span class="navbar-text me-3">
+              <span class="nav-link d-flex align-items-center me-3">
                 <span class="role-badge">NONPROFIT</span>
               </span>
             </li>
@@ -91,13 +94,28 @@
               <i class="bi bi-list-ul me-2"></i>Available Donations
             </h1>
             <div>
-              <button class="btn btn-outline-primary me-2">
+              <button class="btn btn-outline-primary me-2" id="refresh-donations-btn">
                 <i class="bi bi-arrow-clockwise me-1"></i>Refresh
               </button>
-              <button class="btn btn-outline-secondary">
-                <i class="bi bi-funnel me-1"></i>Filter
-                <i class="bi bi-chevron-down ms-1"></i>
-              </button>
+              <div class="btn-group">
+                <button class="btn btn-outline-secondary" id="filter-donations-btn" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="bi bi-funnel me-1"></i>Filter
+                  <i class="bi bi-chevron-down ms-1"></i>
+                </button>
+                <ul class="dropdown-menu" id="filter-dropdown">
+                  <li><a class="dropdown-item filter-option" data-filter="all" href="#">All Donations</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item filter-option" data-filter="open" href="#">Open</a></li>
+                  <li><a class="dropdown-item filter-option" data-filter="claimed" href="#">Claimed</a></li>
+                  <li><a class="dropdown-item filter-option" data-filter="expired" href="#">Expired</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item filter-option" data-filter="produce" href="#">Produce</a></li>
+                  <li><a class="dropdown-item filter-option" data-filter="bakery" href="#">Bakery</a></li>
+                  <li><a class="dropdown-item filter-option" data-filter="prepared" href="#">Prepared</a></li>
+                  <li><a class="dropdown-item filter-option" data-filter="dairy" href="#">Dairy</a></li>
+                  <li><a class="dropdown-item filter-option" data-filter="other" href="#">Other</a></li>
+                </ul>
+              </div>
             </div>
           </div>
 
@@ -184,7 +202,7 @@
     ></script>
 
     <!-- Custom JS -->
-    <script src="./scripts/main.js"></script>
-    <script src="./scripts/nonprofit-feed.js"></script>
+    <script src="./scripts/main.js?v=1654124500000"></script>
+    <script src="./scripts/nonprofit-feed.js?v=1654124500000"></script>
   </body>
 </html>
