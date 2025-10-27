@@ -116,12 +116,23 @@ function getClaimStatusClass(status) {
     }
 }
 
+function getClaimStatusClass(status) {
+    switch (status) {
+        case 'claimed': return 'status-claimed';
+        case 'assigned': return 'status-assigned';
+        case 'picked_up': return 'status-picked-up';
+        case 'delivered': return 'status-delivered';
+        default: return 'status-claimed';
+    }
+}
+
 function getClaimStatusText(status) {
     switch (status) {
-        case 'claimed': return 'Pending Pickup';
-        case 'picked_up': return 'In Transit';
+        case 'claimed': return 'Claimed';
+        case 'assigned': return 'Driver Assigned';
+        case 'picked_up': return 'Picked Up';
         case 'delivered': return 'Delivered';
-        default: return 'Pending Pickup';
+        default: return 'Claimed';
     }
 }
 

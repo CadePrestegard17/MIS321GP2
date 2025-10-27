@@ -54,6 +54,11 @@ body {
   color: #856404;
 }
 
+.status-assigned {
+  background-color: #d4edda;
+  color: #155724;
+}
+
 .status-picked-up {
   background-color: #cce5ff;
   color: #004085;

@@ -35,11 +35,59 @@ namespace FoodFlow.Controllers
                 using var connection = new MySqlConnection(_database.cs);
                 connection.Open();
                 Console.WriteLine("DonationController database connection verified");
+                
+                // Add missing columns to donations table
+                AddMissingDonationColumns(connection);
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error connecting to database: {ex.Message}");
                 throw;
+            }
+        }
+
+        private void AddMissingDonationColumns(MySqlConnection connection)
+        {
+            try
+            {
+                var columnsToAdd = new[]
+                {
+                    ("claimed_by_nonprofit_id", "INT NULL"),
+                    ("updated_at", "DATETIME NULL"),
+                    ("assigned_driver_id", "INT NULL"),
+                    ("assigned_at", "DATETIME NULL")
+                };
+                
+                foreach (var (columnName, columnType) in columnsToAdd)
+                {
+                    try
+                    {
+                        // Check if column exists first
+                        var checkQuery = $"SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'donations' AND COLUMN_NAME = '{columnName}'";
+                        using var checkCommand = new MySqlCommand(checkQuery, connection);
+                        var exists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
+                        
+                        if (!exists)
+                        {
+                            var addQuery = $"ALTER TABLE donations ADD COLUMN {columnName} {columnType}";
+                            using var addCommand = new MySqlCommand(addQuery, connection);
+                            addCommand.ExecuteNonQuery();
+                            Console.WriteLine($"Added column to donations table: {columnName}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Column {columnName} already exists in donations table");
+                        }
+                    }
+                    catch (MySqlException ex) when (ex.Number == 1060) // Duplicate column name
+                    {
+                        Console.WriteLine($"Column {columnName} may already exist: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error adding missing donation columns: {ex.Message}");
             }
         }
 
@@ -421,6 +469,257 @@ namespace FoodFlow.Controllers
             }
         }
 
+        [HttpGet("claimed-for-drivers")]
+        public async Task<ActionResult<object>> GetClaimedDonationsForDrivers()
+        {
+            try
+            {
+                var currentUser = GetCurrentUser();
+                if (currentUser == null || currentUser.Role != UserRole.Driver)
+                {
+                    return Unauthorized(new { error = "Only drivers can view claimed donations for pickup" });
+                }
+
+                using var connection = new MySqlConnection(_database.cs);
+                connection.Open();
+                
+                var getClaimedSql = @"
+                    SELECT d.id, d.item_name, d.quantity, d.category, d.pickup_start, d.pickup_end, 
+                           d.safe_until, d.address, d.notes, d.donor_id, d.status, d.created_at,
+                           u.first_name, u.last_name, u.business_name, u.organization_name,
+                           np.first_name as np_first_name, np.last_name as np_last_name, 
+                           np.organization_name as np_organization_name
+                    FROM donations d
+                    LEFT JOIN users u ON d.donor_id = u.id
+                    LEFT JOIN users np ON d.claimed_by_nonprofit_id = np.id
+                    WHERE d.status = 'claimed' AND d.claimed_by_nonprofit_id IS NOT NULL
+                    ORDER BY d.created_at DESC";
+                
+                using var getClaimedCmd = new MySqlCommand(getClaimedSql, connection);
+                using var reader = await getClaimedCmd.ExecuteReaderAsync();
+                
+                var donations = new List<object>();
+                while (await reader.ReadAsync())
+                {
+                    var idIndex = reader.GetOrdinal("id");
+                    var itemNameIndex = reader.GetOrdinal("item_name");
+                    var quantityIndex = reader.GetOrdinal("quantity");
+                    var categoryIndex = reader.GetOrdinal("category");
+                    var pickupStartIndex = reader.GetOrdinal("pickup_start");
+                    var pickupEndIndex = reader.GetOrdinal("pickup_end");
+                    var safeUntilIndex = reader.GetOrdinal("safe_until");
+                    var addressIndex = reader.GetOrdinal("address");
+                    var notesIndex = reader.GetOrdinal("notes");
+                    var donorIdIndex = reader.GetOrdinal("donor_id");
+                    var statusIndex = reader.GetOrdinal("status");
+                    var createdAtIndex = reader.GetOrdinal("created_at");
+                    var donorFirstNameIndex = reader.GetOrdinal("first_name");
+                    var donorLastNameIndex = reader.GetOrdinal("last_name");
+                    var donorBusinessNameIndex = reader.GetOrdinal("business_name");
+                    var donorOrganizationNameIndex = reader.GetOrdinal("organization_name");
+                    var npFirstNameIndex = reader.GetOrdinal("np_first_name");
+                    var npLastNameIndex = reader.GetOrdinal("np_last_name");
+                    var npOrganizationNameIndex = reader.GetOrdinal("np_organization_name");
+
+                    donations.Add(new
+                    {
+                        id = reader.GetInt32(idIndex),
+                        itemName = reader.GetString(itemNameIndex),
+                        quantity = reader.GetString(quantityIndex),
+                        category = reader.GetString(categoryIndex),
+                        pickupStart = reader.GetDateTime(pickupStartIndex),
+                        pickupEnd = reader.GetDateTime(pickupEndIndex),
+                        safeUntil = reader.GetDateTime(safeUntilIndex),
+                        address = reader.GetString(addressIndex),
+                        notes = reader.IsDBNull(notesIndex) ? "" : reader.GetString(notesIndex),
+                        donorId = reader.GetInt32(donorIdIndex),
+                        status = reader.GetString(statusIndex),
+                        createdAt = reader.GetDateTime(createdAtIndex),
+                        donor = new
+                        {
+                            firstName = reader.IsDBNull(donorFirstNameIndex) ? "" : reader.GetString(donorFirstNameIndex),
+                            lastName = reader.IsDBNull(donorLastNameIndex) ? "" : reader.GetString(donorLastNameIndex),
+                            businessName = reader.IsDBNull(donorBusinessNameIndex) ? null : reader.GetString(donorBusinessNameIndex),
+                            organizationName = reader.IsDBNull(donorOrganizationNameIndex) ? null : reader.GetString(donorOrganizationNameIndex)
+                        },
+                        nonprofit = new
+                        {
+                            firstName = reader.IsDBNull(npFirstNameIndex) ? "" : reader.GetString(npFirstNameIndex),
+                            lastName = reader.IsDBNull(npLastNameIndex) ? "" : reader.GetString(npLastNameIndex),
+                            organizationName = reader.IsDBNull(npOrganizationNameIndex) ? null : reader.GetString(npOrganizationNameIndex)
+                        }
+                    });
+                }
+                
+                return Ok(new { donations });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading claimed donations for drivers: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while loading claimed donations" });
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<object>> GetDonation(int id)
+        {
+            try
+            {
+                using var connection = new MySqlConnection(_database.cs);
+                connection.Open();
+                
+                var getDonationSql = @"
+                    SELECT d.id, d.item_name, d.quantity, d.category, d.pickup_start, d.pickup_end, 
+                           d.safe_until, d.address, d.notes, d.donor_id, d.status, d.created_at,
+                           u.first_name, u.last_name, u.business_name, u.organization_name
+                    FROM donations d
+                    LEFT JOIN users u ON d.donor_id = u.id
+                    WHERE d.id = @donationId";
+                
+                using var getDonationCmd = new MySqlCommand(getDonationSql, connection);
+                getDonationCmd.Parameters.AddWithValue("@donationId", id);
+                using var reader = await getDonationCmd.ExecuteReaderAsync();
+                
+                if (await reader.ReadAsync())
+                {
+                    var donation = new
+                    {
+                        id = reader.GetInt32(0),
+                        itemName = reader.GetString(1),
+                        quantity = reader.GetString(2),
+                        category = reader.GetString(3),
+                        pickupStart = reader.GetDateTime(4),
+                        pickupEnd = reader.GetDateTime(5),
+                        safeUntil = reader.GetDateTime(6),
+                        address = reader.GetString(7),
+                        notes = reader.IsDBNull(8) ? "" : reader.GetString(8),
+                        donorId = reader.GetInt32(9),
+                        status = reader.GetString(10),
+                        createdAt = reader.GetDateTime(11),
+                        donor = new
+                        {
+                            firstName = reader.IsDBNull(12) ? "" : reader.GetString(12),
+                            lastName = reader.IsDBNull(13) ? "" : reader.GetString(13),
+                            businessName = reader.IsDBNull(14) ? null : reader.GetString(14),
+                            organizationName = reader.IsDBNull(15) ? null : reader.GetString(15)
+                        }
+                    };
+                    
+                    return Ok(donation);
+                }
+                else
+                {
+                    return NotFound(new { error = "Donation not found" });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading donation: {ex.Message}");
+                return StatusCode(500, new { error = "An error occurred while loading the donation" });
+            }
+        }
+
+        [HttpPost("{id}/assign-driver")]
+        public async Task<ActionResult<object>> AssignDriver(int id, [FromBody] AssignDriverRequest request)
+        {
+            try
+            {
+                if (request == null || request.DriverId == 0)
+                {
+                    return BadRequest(new { 
+                        success = false,
+                        message = "Driver ID is required"
+                    });
+                }
+                
+                using var connection = new MySqlConnection(_database.cs);
+                connection.Open();
+                
+                // Check if donation exists and is claimed by a nonprofit
+                var checkSql = @"
+                    SELECT d.id, d.status, d.claimed_by_nonprofit_id, u.email as nonprofit_email
+                    FROM donations d
+                    LEFT JOIN users u ON d.claimed_by_nonprofit_id = u.id
+                    WHERE d.id = @donationId";
+                
+                using var checkCmd = new MySqlCommand(checkSql, connection);
+                checkCmd.Parameters.AddWithValue("@donationId", id);
+                
+                using var reader = await checkCmd.ExecuteReaderAsync();
+                if (!reader.Read())
+                {
+                    return NotFound(new { 
+                        success = false,
+                        message = "Donation not found"
+                    });
+                }
+                
+                var statusIndex = reader.GetOrdinal("status");
+                var claimedByNonprofitIdIndex = reader.GetOrdinal("claimed_by_nonprofit_id");
+                var nonprofitEmailIndex = reader.GetOrdinal("nonprofit_email");
+                
+                var status = reader.GetString(statusIndex);
+                var claimedByNonprofitId = reader.IsDBNull(claimedByNonprofitIdIndex) ? (int?)null : reader.GetInt32(claimedByNonprofitIdIndex);
+                var nonprofitEmail = reader.IsDBNull(nonprofitEmailIndex) ? null : reader.GetString(nonprofitEmailIndex);
+                
+                reader.Close();
+                
+                if (status != "claimed")
+                {
+                    return BadRequest(new { 
+                        success = false,
+                        message = "Donation must be claimed by a nonprofit before assigning to driver"
+                    });
+                }
+                
+                if (!claimedByNonprofitId.HasValue)
+                {
+                    return BadRequest(new { 
+                        success = false,
+                        message = "Donation is not claimed by any nonprofit"
+                    });
+                }
+                
+                // Update donation with driver assignment
+                var updateSql = @"
+                    UPDATE donations 
+                    SET assigned_driver_id = @driverId, 
+                        status = 'assigned',
+                        assigned_at = NOW()
+                    WHERE id = @donationId";
+                
+                using var updateCmd = new MySqlCommand(updateSql, connection);
+                updateCmd.Parameters.AddWithValue("@driverId", request.DriverId);
+                updateCmd.Parameters.AddWithValue("@donationId", id);
+                
+                int rowsAffected = await updateCmd.ExecuteNonQueryAsync();
+                
+                if (rowsAffected > 0)
+                {
+                    return Ok(new { 
+                        success = true,
+                        message = "Driver assigned successfully",
+                        nonprofitEmail = nonprofitEmail
+                    });
+                }
+                else
+                {
+                    return BadRequest(new { 
+                        success = false,
+                        message = "Failed to assign driver"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error assigning driver: {ex.Message}");
+                return StatusCode(500, new { 
+                    success = false,
+                    message = "An error occurred while assigning the driver"
+                });
+            }
+        }
+
         [HttpPost("test")]
         public async Task<ActionResult<object>> TestCreateDonation()
         {
@@ -545,15 +844,15 @@ namespace FoodFlow.Controllers
 
         private User? GetCurrentUser()
         {
-            // For now, return a mock nonprofit user for testing
+            // For now, return a mock driver user for testing
             // In a real app, you'd get this from JWT token or session
             return new User
             {
-                Id = 7, // Using existing nonprofit user from database (johndoenonprofit@gmail.com)
-                Email = "johndoenonprofit@gmail.com",
+                Id = 3, // Using existing driver user from database
+                Email = "johndoe@gmail.com",
                 FirstName = "John",
                 LastName = "Doe",
-                Role = UserRole.Nonprofit
+                Role = UserRole.Driver
             };
         }
         
@@ -611,5 +910,10 @@ namespace FoodFlow.Controllers
     public class ClaimDonationRequest
     {
         public int UserId { get; set; }
+    }
+
+    public class AssignDriverRequest
+    {
+        public int DriverId { get; set; }
     }
 }

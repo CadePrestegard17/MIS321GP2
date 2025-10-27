@@ -195,6 +195,33 @@ function setCurrentUser(user) {
   window.appState.currentUser = user;
 }
 
+function addDriverProfileLink() {
+  // Check if link already exists
+  const existingLink = document.querySelector('a[href="driver-profile-setup.html"]');
+  if (existingLink) return;
+  
+  const navbarNav = document.querySelector('.navbar-nav.me-auto');
+  if (!navbarNav) return;
+  
+  const driverProfileLink = document.createElement('li');
+  driverProfileLink.className = 'nav-item';
+  driverProfileLink.innerHTML = `
+    <a class="nav-link" href="driver-profile-setup.html">
+      <i class="bi bi-gear me-1"></i>Profile Setup
+    </a>
+  `;
+  
+  // Find the dashboard link's parent li element
+  const dashboardLink = navbarNav.querySelector('a[href*="dashboard.html"]');
+  if (dashboardLink && dashboardLink.parentNode) {
+    // Insert after the dashboard li element
+    dashboardLink.parentNode.parentNode.insertBefore(driverProfileLink, dashboardLink.parentNode.nextSibling);
+  } else {
+    // Fallback: append to the end of the navbar
+    navbarNav.appendChild(driverProfileLink);
+  }
+}
+
 function updateNavigationForRole(role) {
   const navLinks = document.querySelectorAll('.nav-link[data-role]');
   
@@ -245,6 +272,11 @@ function updateNavigationForRole(role) {
       link.style.display = 'none';
     }
   });
+  
+  // Add driver-specific navigation
+  if (role === 3) {
+    addDriverProfileLink();
+  }
   
   // Update role badge
   const roleBadge = document.querySelector('.role-badge');

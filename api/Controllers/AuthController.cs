@@ -762,6 +762,58 @@ namespace FoodFlow.Controllers
             }
         }
         
+        [HttpPost("update-driver-profile")]
+        public async Task<ActionResult<object>> UpdateDriverProfile([FromBody] UpdateDriverProfileRequest request)
+        {
+            try
+            {
+                using var connection = new MySqlConnection(_database.cs);
+                connection.Open();
+                
+                var updateSql = @"
+                    UPDATE users 
+                    SET service_city = @serviceCity,
+                        service_radius_miles = @serviceRadiusMiles,
+                        preferred_areas = @preferredAreas,
+                        is_available = @isAvailable,
+                        vehicle_type = @vehicleType,
+                        license_plate = @licensePlate
+                    WHERE email = @email AND role = 3";
+                
+                using var cmd = new MySqlCommand(updateSql, connection);
+                cmd.Parameters.AddWithValue("@email", request.Email);
+                cmd.Parameters.AddWithValue("@serviceCity", request.ServiceCity);
+                cmd.Parameters.AddWithValue("@serviceRadiusMiles", request.ServiceRadiusMiles);
+                cmd.Parameters.AddWithValue("@preferredAreas", request.PreferredAreas ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@isAvailable", request.IsAvailable);
+                cmd.Parameters.AddWithValue("@vehicleType", request.VehicleType);
+                cmd.Parameters.AddWithValue("@licensePlate", request.LicensePlate);
+                
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                
+                if (rowsAffected == 0)
+                {
+                    return BadRequest(new { 
+                        success = false,
+                        error = "Driver not found or not authorized to update profile"
+                    });
+                }
+                
+                return Ok(new { 
+                    success = true, 
+                    message = "Driver profile updated successfully",
+                    rowsAffected = rowsAffected
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { 
+                    success = false,
+                    error = ex.Message
+                });
+            }
+        }
+        
         [HttpGet("roles")]
         public ActionResult<object> GetRoles()
         {

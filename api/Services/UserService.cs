@@ -35,6 +35,17 @@ namespace FoodFlow.Services
                         business_type VARCHAR(100) NULL,
                         organization_name VARCHAR(255) NULL,
                         organization_type VARCHAR(100) NULL,
+                        address VARCHAR(255) NULL,
+                        city VARCHAR(100) NULL,
+                        state VARCHAR(50) NULL,
+                        zip_code VARCHAR(20) NULL,
+                        country VARCHAR(100) NULL,
+                        service_city VARCHAR(100) NULL,
+                        service_radius_miles INT NULL,
+                        preferred_areas TEXT NULL,
+                        is_available BOOLEAN DEFAULT TRUE,
+                        vehicle_type VARCHAR(50) NULL,
+                        license_plate VARCHAR(20) NULL,
                         created_at DATETIME NOT NULL,
                         last_login_at DATETIME NULL,
                         INDEX idx_email (email),
@@ -43,6 +54,9 @@ namespace FoodFlow.Services
                 
                 using var command = new MySqlCommand(createTableQuery, connection);
                 await command.ExecuteNonQueryAsync();
+                
+                // Add missing columns to existing table
+                await AddMissingColumnsAsync(connection);
                 
                 // Insert admin user if not exists
                 var adminQuery = @"
@@ -57,6 +71,58 @@ namespace FoodFlow.Services
             catch (Exception ex)
             {
                 Console.WriteLine($"Error initializing database: {ex.Message}");
+            }
+        }
+        
+        private async Task AddMissingColumnsAsync(MySqlConnection connection)
+        {
+            try
+            {
+                var columnsToAdd = new[]
+                {
+                    ("address", "VARCHAR(255) NULL"),
+                    ("city", "VARCHAR(100) NULL"),
+                    ("state", "VARCHAR(50) NULL"),
+                    ("zip_code", "VARCHAR(20) NULL"),
+                    ("country", "VARCHAR(100) NULL"),
+                    ("service_city", "VARCHAR(100) NULL"),
+                    ("service_radius_miles", "INT NULL"),
+                    ("preferred_areas", "TEXT NULL"),
+                    ("is_available", "BOOLEAN DEFAULT TRUE"),
+                    ("vehicle_type", "VARCHAR(50) NULL"),
+                    ("license_plate", "VARCHAR(20) NULL")
+                };
+                
+                foreach (var (columnName, columnType) in columnsToAdd)
+                {
+                    try
+                    {
+                        // Check if column exists first
+                        var checkQuery = $"SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'users' AND COLUMN_NAME = '{columnName}'";
+                        using var checkCommand = new MySqlCommand(checkQuery, connection);
+                        var exists = Convert.ToInt32(await checkCommand.ExecuteScalarAsync()) > 0;
+                        
+                        if (!exists)
+                        {
+                            var addQuery = $"ALTER TABLE users ADD COLUMN {columnName} {columnType}";
+                            using var addCommand = new MySqlCommand(addQuery, connection);
+                            await addCommand.ExecuteNonQueryAsync();
+                            Console.WriteLine($"Added column: {columnName}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Column {columnName} already exists");
+                        }
+                    }
+                    catch (MySqlException ex) when (ex.Number == 1060) // Duplicate column name
+                    {
+                        Console.WriteLine($"Column {columnName} may already exist: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error adding missing columns: {ex.Message}");
             }
         }
         

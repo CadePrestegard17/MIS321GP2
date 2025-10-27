@@ -35,6 +35,14 @@ namespace FoodFlow.Models
         public string? ZipCode { get; set; }
         public string? Country { get; set; }
         
+        // Driver-specific fields
+        public string? ServiceCity { get; set; }
+        public int? ServiceRadiusMiles { get; set; }
+        public string? PreferredAreas { get; set; } // JSON array of zip codes or neighborhoods
+        public bool IsAvailable { get; set; } = true;
+        public string? VehicleType { get; set; }
+        public string? LicensePlate { get; set; }
+        
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginAt { get; set; }
     }
@@ -108,5 +116,16 @@ namespace FoodFlow.Models
         public string Country { get; set; } = string.Empty;
         public string? OrganizationName { get; set; }
         public string? OrganizationType { get; set; }
+    }
+    
+    public class UpdateDriverProfileRequest
+    {
+        public string Email { get; set; } = string.Empty;
+        public string ServiceCity { get; set; } = string.Empty;
+        public int ServiceRadiusMiles { get; set; }
+        public string? PreferredAreas { get; set; }
+        public bool IsAvailable { get; set; } = true;
+        public string VehicleType { get; set; } = string.Empty;
+        public string LicensePlate { get; set; } = string.Empty;
     }
 }
