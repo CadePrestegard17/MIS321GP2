@@ -20,7 +20,7 @@
     />
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="./styles/main.css" />
+    <link rel="stylesheet" href="./styles/main.css?v=4" />
   </head>
   <body>
     <!-- Navigation -->
@@ -164,13 +164,34 @@
             </div>
             <div class="card-body">
               <div class="simple-chart">
-                <div class="chart-bar" style="height: 60%;">45</div>
-                <div class="chart-bar" style="height: 85%;">62</div>
-                <div class="chart-bar" style="height: 55%;">38</div>
-                <div class="chart-bar" style="height: 100%;">71</div>
-                <div class="chart-bar" style="height: 80%;">58</div>
-                <div class="chart-bar" style="height: 60%;">42</div>
-                <div class="chart-bar" style="height: 45%;">31</div>
+                <div class="chart-column">
+                  <div class="chart-bar">45</div>
+                  <div class="chart-label">Mon</div>
+                </div>
+                <div class="chart-column">
+                  <div class="chart-bar">62</div>
+                  <div class="chart-label">Tue</div>
+                </div>
+                <div class="chart-column">
+                  <div class="chart-bar">38</div>
+                  <div class="chart-label">Wed</div>
+                </div>
+                <div class="chart-column">
+                  <div class="chart-bar">71</div>
+                  <div class="chart-label">Thu</div>
+                </div>
+                <div class="chart-column">
+                  <div class="chart-bar">58</div>
+                  <div class="chart-label">Fri</div>
+                </div>
+                <div class="chart-column">
+                  <div class="chart-bar">42</div>
+                  <div class="chart-label">Sat</div>
+                </div>
+                <div class="chart-column">
+                  <div class="chart-bar">31</div>
+                  <div class="chart-label">Sun</div>
+                </div>
               </div>
               <div class="text-center mt-3">
                 <small class="text-muted">Donations per day this week</small>
@@ -225,6 +246,6 @@
 
     <!-- Custom JS -->
     <script src="./scripts/main.js?v=8"></script>
-    <script src="./scripts/dashboard.js?v=3"></script>
+    <script src="./scripts/dashboard.js?v=4"></script>
   </body>
 </html>

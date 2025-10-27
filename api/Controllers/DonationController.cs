@@ -844,15 +844,15 @@ namespace FoodFlow.Controllers
 
         private User? GetCurrentUser()
         {
-            // For now, return a mock driver user for testing
+            // For now, return a mock nonprofit user for testing
             // In a real app, you'd get this from JWT token or session
             return new User
             {
-                Id = 3, // Using existing driver user from database
-                Email = "johndoe@gmail.com",
+                Id = 7, // Using existing nonprofit user from database
+                Email = "johndoenonprofit@gmail.com",
                 FirstName = "John",
                 LastName = "Doe",
-                Role = UserRole.Driver
+                Role = UserRole.Nonprofit
             };
         }
         

@@ -6,6 +6,10 @@ console.log('Dashboard script loaded');
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Dashboard page loaded');
     
+    // Test if we can find the chart elements
+    const chartColumns = document.querySelectorAll('.chart-column');
+    console.log('Found chart columns on load:', chartColumns.length);
+    
     // Load dashboard data
     loadDashboardData();
     
@@ -36,6 +40,7 @@ function loadDashboardData() {
     const mockData = getMockDataForPeriod(currentPeriod);
     
     updateDashboardMetrics(mockData);
+    updateWeeklyChart();
 }
 
 function getMockDataForPeriod(period) {
@@ -133,4 +138,74 @@ function updateDashboardMetrics(data) {
             }
         }
     });
+}
+
+function updateWeeklyChart() {
+    console.log('=== updateWeeklyChart called ===');
+    
+    // Get current week's days
+    const daysOfWeek = getCurrentWeekDays();
+    console.log('Days of week:', daysOfWeek);
+    
+    // Mock data for each day (you can replace this with real API data)
+    const dailyData = [45, 62, 38, 71, 58, 42, 31];
+    console.log('Daily data:', dailyData);
+    
+    // Find the maximum value for scaling
+    const maxValue = Math.max(...dailyData);
+    console.log('Max value for scaling:', maxValue);
+    
+    // Update chart columns
+    const chartColumns = document.querySelectorAll('.chart-column');
+    console.log('Found chart columns:', chartColumns.length);
+    
+    if (chartColumns.length === 0) {
+        console.error('ERROR: No chart columns found!');
+        return;
+    }
+    
+    chartColumns.forEach((column, index) => {
+        const bar = column.querySelector('.chart-bar');
+        const label = column.querySelector('.chart-label');
+        
+        if (bar && label && index < daysOfWeek.length) {
+            const value = dailyData[index];
+            
+            // Calculate bar height: (current value / max value) * 100%
+            const height = (value / maxValue) * 100;
+            
+            // Apply height based on data - use pixels for more control
+            const heightInPixels = (height / 100) * 200; // 200px max height
+            bar.style.height = heightInPixels + 'px';
+            bar.textContent = value;
+            
+            // Update day label
+            label.textContent = daysOfWeek[index];
+            
+            console.log(`${daysOfWeek[index]}: ${value} donations = ${height.toFixed(1)}% = ${heightInPixels.toFixed(1)}px`);
+        }
+    });
+    
+    console.log('=== updateWeeklyChart finished ===');
+}
+
+function getCurrentWeekDays() {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    
+    // Calculate Monday of current week
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1));
+    
+    const days = [];
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    // Generate 7 days starting from Monday
+    for (let i = 0; i < 7; i++) {
+        const day = new Date(monday);
+        day.setDate(monday.getDate() + i);
+        days.push(dayNames[day.getDay()]);
+    }
+    
+    return days;
 }
