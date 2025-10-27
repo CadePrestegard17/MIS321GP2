@@ -13,45 +13,33 @@ namespace FoodFlow.Controllers
 
         public DonationController()
         {
-            _database = new Database.Database();
-            InitializeDatabase();
+            try
+            {
+                _database = new Database.Database();
+                InitializeDatabase();
+                Console.WriteLine("DonationController initialized successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing DonationController: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                throw; // Re-throw to see the error
+            }
         }
 
         private void InitializeDatabase()
         {
             try
             {
+                // Just verify database connection - don't recreate tables
                 using var connection = new MySqlConnection(_database.cs);
                 connection.Open();
-                
-                // Create donations table if it doesn't exist (without foreign keys for now)
-                var createTableSql = @"
-                    CREATE TABLE IF NOT EXISTS donations (
-                        id INT AUTO_INCREMENT PRIMARY KEY,
-                        item_name VARCHAR(255) NOT NULL,
-                        quantity VARCHAR(100) NOT NULL,
-                        category VARCHAR(50) NOT NULL,
-                        pickup_start DATETIME NOT NULL,
-                        pickup_end DATETIME NOT NULL,
-                        safe_until DATETIME NOT NULL,
-                        address TEXT NOT NULL,
-                        notes TEXT,
-                        donor_id INT NOT NULL,
-                        status ENUM('open', 'claimed', 'picked_up', 'expired') DEFAULT 'open',
-                        claimed_by_nonprofit_id INT NULL,
-                        assigned_driver_id INT NULL,
-                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
-                    )";
-                
-                using var createTableCmd = new MySqlCommand(createTableSql, connection);
-                createTableCmd.ExecuteNonQuery();
-                
-                Console.WriteLine("Donations table initialized successfully");
+                Console.WriteLine("DonationController database connection verified");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error initializing donations table: {ex.Message}");
+                Console.WriteLine($"Error connecting to database: {ex.Message}");
+                throw;
             }
         }
 
@@ -200,6 +188,18 @@ namespace FoodFlow.Controllers
             }
         }
 
+        [HttpGet("ping")]
+        public ActionResult<string> Ping()
+        {
+            return Ok("DonationController is working!");
+        }
+
+        [HttpGet("test-simple")]
+        public ActionResult<object> TestSimple()
+        {
+            return Ok(new { message = "DonationController is working!", timestamp = DateTime.UtcNow });
+        }
+
         [HttpGet]
         public async Task<ActionResult<object>> GetDonations()
         {
@@ -209,10 +209,13 @@ namespace FoodFlow.Controllers
                 connection.Open();
                 
                 var getDonationsSql = @"
-                    SELECT *
-                    FROM donations
-                    WHERE status IN ('open', 'claimed')
-                    ORDER BY created_at DESC";
+                    SELECT d.id, d.item_name, d.quantity, d.category, d.pickup_start, d.pickup_end, 
+                           d.safe_until, d.address, d.notes, d.donor_id, d.status, d.created_at,
+                           u.first_name, u.last_name, u.business_name, u.organization_name
+                    FROM donations d
+                    LEFT JOIN users u ON d.donor_id = u.id
+                    WHERE d.status IN ('open', 'claimed')
+                    ORDER BY d.created_at DESC";
                 
                 using var getDonationsCmd = new MySqlCommand(getDonationsSql, connection);
                 using var reader = await getDonationsCmd.ExecuteReaderAsync();
@@ -222,21 +225,25 @@ namespace FoodFlow.Controllers
                 {
                     donations.Add(new
                     {
-                        Id = reader.GetInt32(0),
-                        ItemName = reader.GetString(1),
-                        Quantity = reader.GetString(2),
-                        Category = reader.GetString(3),
-                        PickupStart = reader.GetDateTime(4),
-                        PickupEnd = reader.GetDateTime(5),
-                        SafeUntil = reader.GetDateTime(6),
-                        Address = reader.GetString(7),
-                        Notes = reader.IsDBNull(8) ? null : reader.GetString(8),
-                        DonorId = reader.GetInt32(9),
-                        Status = reader.GetString(10),
-                        ClaimedByNonprofitId = reader.IsDBNull(11) ? (int?)null : reader.GetInt32(11),
-                        AssignedDriverId = reader.IsDBNull(12) ? (int?)null : reader.GetInt32(12),
-                        CreatedAt = reader.GetDateTime(13),
-                        UpdatedAt = reader.IsDBNull(14) ? (DateTime?)null : reader.GetDateTime(14)
+                        id = reader.GetInt32(0),
+                        itemName = reader.GetString(1),
+                        quantity = reader.GetString(2),
+                        category = reader.GetString(3),
+                        pickupStart = reader.GetDateTime(4),
+                        pickupEnd = reader.GetDateTime(5),
+                        safeUntil = reader.GetDateTime(6),
+                        address = reader.GetString(7),
+                        notes = reader.IsDBNull(8) ? null : reader.GetString(8),
+                        donorId = reader.GetInt32(9),
+                        status = reader.GetString(10),
+                        createdAt = reader.GetDateTime(11),
+                        donor = new
+                        {
+                            firstName = reader.IsDBNull(12) ? null : reader.GetString(12),
+                            lastName = reader.IsDBNull(13) ? null : reader.GetString(13),
+                            businessName = reader.IsDBNull(14) ? null : reader.GetString(14),
+                            organizationName = reader.IsDBNull(15) ? null : reader.GetString(15)
+                        }
                     });
                 }
                 

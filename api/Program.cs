@@ -18,17 +18,18 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-// Serve static files from the client directory
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
-// Fallback to index.html for SPA routing
-app.MapFallbackToFile("index.html");
-
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+// Map API controllers with explicit routing
 app.MapControllers();
+
+// Serve static files from the client directory
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+// Temporarily comment out fallback to test API
+// app.MapFallbackToFile("index.html");
 
 app.Run();

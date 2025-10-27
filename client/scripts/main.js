@@ -630,16 +630,40 @@ async function handleLogin(form) {
 
 async function handleRegistration(form) {
   const formData = new FormData(form);
+  const role = parseInt(formData.get('role'));
+  
+  // Get address fields based on role
+  let address, city, state, zipCode, country;
+  
+  if (role === 1) { // Donor
+    address = formData.get('address');
+    city = formData.get('city');
+    state = formData.get('state');
+    zipCode = formData.get('zipCode');
+    country = formData.get('country');
+  } else if (role === 2) { // Nonprofit
+    address = formData.get('orgAddress');
+    city = formData.get('orgCity');
+    state = formData.get('orgState');
+    zipCode = formData.get('orgZipCode');
+    country = formData.get('orgCountry');
+  }
+  
   const registerData = {
     email: formData.get('email'),
     password: formData.get('password'),
     firstName: formData.get('firstName'),
     lastName: formData.get('lastName'),
-    role: parseInt(formData.get('role')),
+    role: role,
     businessName: formData.get('businessName'),
     businessType: formData.get('businessType'),
     organizationName: formData.get('organizationName'),
-    organizationType: formData.get('organizationType')
+    organizationType: formData.get('organizationType'),
+    address: address,
+    city: city,
+    state: state,
+    zipCode: zipCode,
+    country: country
   };
   
   try {

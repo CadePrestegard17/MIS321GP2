@@ -28,6 +28,13 @@ namespace FoodFlow.Models
         public string? OrganizationName { get; set; }
         public string? OrganizationType { get; set; }
         
+        // Address fields for nonprofits and donors
+        public string? Address { get; set; }
+        public string? City { get; set; }
+        public string? State { get; set; }
+        public string? ZipCode { get; set; }
+        public string? Country { get; set; }
+        
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginAt { get; set; }
     }
@@ -74,6 +81,13 @@ namespace FoodFlow.Models
         public string? BusinessType { get; set; }
         public string? OrganizationName { get; set; }
         public string? OrganizationType { get; set; }
+        
+        // Address fields for nonprofits and donors
+        public string? Address { get; set; }
+        public string? City { get; set; }
+        public string? State { get; set; }
+        public string? ZipCode { get; set; }
+        public string? Country { get; set; }
     }
     
     public class AuthResponse
@@ -82,5 +96,17 @@ namespace FoodFlow.Models
         public string Message { get; set; } = string.Empty;
         public User? User { get; set; }
         public string? Token { get; set; }
+    }
+
+    public class UpdateAddressRequest
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
+        public string ZipCode { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
+        public string? OrganizationName { get; set; }
+        public string? OrganizationType { get; set; }
     }
 }

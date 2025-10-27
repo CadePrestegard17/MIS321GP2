@@ -29,7 +29,7 @@ function initializeFeed() {
 
 async function loadDonations() {
     try {
-        const response = await fetch('/api/donation');
+        const response = await fetch('/api/auth/donations-with-donors');
         const result = await response.json();
         
         if (result.donations) {
@@ -72,6 +72,25 @@ function displayDonations(donations) {
     });
 }
 
+function getDonorDisplayName(donor) {
+    if (!donor) return 'Anonymous Donor';
+    
+    // Prioritize business/organization name over personal name
+    if (donor.businessName) {
+        return donor.businessName;
+    }
+    if (donor.organizationName) {
+        return donor.organizationName;
+    }
+    
+    // Fall back to personal name
+    if (donor.firstName && donor.lastName) {
+        return `${donor.firstName} ${donor.lastName}`;
+    }
+    
+    return 'Anonymous Donor';
+}
+
 function createDonationCard(donation) {
     const card = document.createElement('div');
     card.className = 'card donation-card mb-3';
@@ -80,7 +99,7 @@ function createDonationCard(donation) {
     const statusClass = getStatusClass(donation.status);
     const statusText = getStatusText(donation.status);
     const timeInfo = getTimeInfo(donation);
-    const donorName = donation.Donor ? `${donation.Donor.FirstName} ${donation.Donor.LastName}` : 'Anonymous Donor';
+    const donorName = getDonorDisplayName(donation.donor);
     
     card.innerHTML = `
         <div class="card-body">
@@ -96,7 +115,7 @@ function createDonationCard(donation) {
                     </p>
                     <p class="card-text">
                         <small class="text-muted">
-                            📍 ${formatAddress(donation.address)}<br>
+                            📍 <strong>Pickup Location:</strong> ${formatAddress(donation.address)}<br>
                             ⏰ ${timeInfo}
                         </small>
                     </p>
