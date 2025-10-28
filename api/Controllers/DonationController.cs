@@ -571,6 +571,7 @@ namespace FoodFlow.Controllers
                 var getDonationSql = @"
                     SELECT d.id, d.item_name, d.quantity, d.category, d.pickup_start, d.pickup_end, 
                            d.safe_until, d.address, d.notes, d.donor_id, d.status, d.created_at,
+                           d.assigned_driver_id,
                            u.first_name, u.last_name, u.business_name, u.organization_name
                     FROM donations d
                     LEFT JOIN users u ON d.donor_id = u.id
@@ -596,12 +597,13 @@ namespace FoodFlow.Controllers
                         donorId = reader.GetInt32(9),
                         status = reader.GetString(10),
                         createdAt = reader.GetDateTime(11),
+                        assignedDriverId = reader.IsDBNull(12) ? (int?)null : reader.GetInt32(12),
                         donor = new
                         {
-                            firstName = reader.IsDBNull(12) ? "" : reader.GetString(12),
-                            lastName = reader.IsDBNull(13) ? "" : reader.GetString(13),
-                            businessName = reader.IsDBNull(14) ? null : reader.GetString(14),
-                            organizationName = reader.IsDBNull(15) ? null : reader.GetString(15)
+                            firstName = reader.IsDBNull(13) ? "" : reader.GetString(13),
+                            lastName = reader.IsDBNull(14) ? "" : reader.GetString(14),
+                            businessName = reader.IsDBNull(15) ? null : reader.GetString(15),
+                            organizationName = reader.IsDBNull(16) ? null : reader.GetString(16)
                         }
                     };
                     
@@ -842,6 +844,100 @@ namespace FoodFlow.Controllers
             }
         }
 
+        [HttpPost("{id}/complete-delivery")]
+        public async Task<ActionResult<object>> CompleteDelivery(int id)
+        {
+            try
+            {
+                var currentUser = GetCurrentUser();
+                if (currentUser == null || currentUser.Role != UserRole.Driver)
+                {
+                    return Unauthorized(new { 
+                        success = false,
+                        message = "Only drivers can complete deliveries"
+                    });
+                }
+
+                using var connection = new MySqlConnection(_database.cs);
+                connection.Open();
+                
+                var checkSql = @"
+                    SELECT d.id, d.status, d.assigned_driver_id
+                    FROM donations d
+                    WHERE d.id = @donationId";
+                
+                using var checkCmd = new MySqlCommand(checkSql, connection);
+                checkCmd.Parameters.AddWithValue("@donationId", id);
+                
+                using var reader = await checkCmd.ExecuteReaderAsync();
+                if (!reader.Read())
+                {
+                    return NotFound(new { 
+                        success = false,
+                        message = "Donation not found"
+                    });
+                }
+                
+                var statusIndex = reader.GetOrdinal("status");
+                var assignedDriverIdIndex = reader.GetOrdinal("assigned_driver_id");
+                
+                var status = reader.GetString(statusIndex);
+                var assignedDriverId = reader.IsDBNull(assignedDriverIdIndex) ? (int?)null : reader.GetInt32(assignedDriverIdIndex);
+                
+                reader.Close();
+                
+                if (status != "assigned" && (!assignedDriverId.HasValue || assignedDriverId.Value != currentUser.Id))
+                {
+                    return BadRequest(new { 
+                        success = false,
+                        message = "Donation must be assigned to a driver before completing delivery"
+                    });
+                }
+                
+                if (!assignedDriverId.HasValue || assignedDriverId.Value != currentUser.Id)
+                {
+                    return BadRequest(new { 
+                        success = false,
+                        message = "This donation is not assigned to you"
+                    });
+                }
+                
+                var updateSql = @"
+                    UPDATE donations 
+                    SET status = 'delivered',
+                        updated_at = NOW()
+                    WHERE id = @donationId";
+                
+                using var updateCmd = new MySqlCommand(updateSql, connection);
+                updateCmd.Parameters.AddWithValue("@donationId", id);
+                
+                int rowsAffected = await updateCmd.ExecuteNonQueryAsync();
+                
+                if (rowsAffected > 0)
+                {
+                    return Ok(new { 
+                        success = true,
+                        message = "Delivery completed successfully"
+                    });
+                }
+                else
+                {
+                    return BadRequest(new { 
+                        success = false,
+                        message = "Failed to complete delivery"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error completing delivery: {ex.Message}");
+                return StatusCode(500, new { 
+                    success = false,
+                    message = "An error occurred while completing the delivery"
+                });
+            }
+        }
+        
         private User? GetCurrentUser()
         {
             // For now, return a mock nonprofit user for testing

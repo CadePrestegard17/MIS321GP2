@@ -604,14 +604,17 @@ function createMyRouteCard(route) {
                     </div>
                     ${route.notes ? `<div class="mt-2"><small class="text-muted"><strong>Notes:</strong> ${route.notes}</small></div>` : ''}
                 </div>
-                <div class="text-end">
-                    <button class="btn btn-primary btn-sm me-2" onclick="viewRouteMap(${route.id})">
-                        <i class="bi bi-map me-1"></i>View Map
-                    </button>
-                    <button class="btn btn-outline-secondary btn-sm" onclick="viewRouteDetails(${route.id})">
-                        <i class="bi bi-eye me-1"></i>Details
-                    </button>
-                </div>
+                         <div class="text-end">
+                             <button class="btn btn-success btn-sm me-2" onclick="completeDelivery(${route.id})">
+                                 <i class="bi bi-check-circle me-1"></i>Complete Delivery
+                             </button>
+                             <button class="btn btn-primary btn-sm me-2" onclick="viewRouteMap(${route.id})">
+                                 <i class="bi bi-map me-1"></i>View Map
+                             </button>
+                             <button class="btn btn-outline-secondary btn-sm" onclick="viewRouteDetails(${route.id})">
+                                 <i class="bi bi-eye me-1"></i>Details
+                             </button>
+                         </div>
             </div>
         </div>
     `;
@@ -622,6 +625,47 @@ function createMyRouteCard(route) {
 function viewRouteMap(routeId) {
     // TODO: Implement map view
     showToast('Map view coming soon!', 'info');
+}
+
+async function completeDelivery(routeId) {
+    try {
+        console.log('Completing delivery for route:', routeId);
+        
+        const response = await fetch(`/api/donation/${routeId}/complete-delivery`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            showToast('Delivery completed successfully!', 'success');
+            
+            // Remove from My Routes
+            removeFromMyRoutes(routeId);
+            
+            // Remove from display
+            removeRouteFromDisplay(routeId);
+            
+            // Show completion message
+            setTimeout(() => {
+                showToast('Route completed and removed from your routes!', 'info');
+            }, 1000);
+            
+        } else {
+            const error = await response.json();
+            showToast(`Failed to complete delivery: ${error.message || 'Unknown error'}`, 'danger');
+        }
+    } catch (error) {
+        console.error('Error completing delivery:', error);
+        showToast('Failed to complete delivery. Please try again.', 'danger');
+    }
+}
+
+function removeFromMyRoutes(routeId) {
+    const myRoutes = JSON.parse(localStorage.getItem('myRoutes') || '[]');
+    const updatedRoutes = myRoutes.filter(id => id !== routeId);
+    localStorage.setItem('myRoutes', JSON.stringify(updatedRoutes));
 }
 
 function viewRouteDetails(routeId) {
